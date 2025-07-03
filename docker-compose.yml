@@ -1,0 +1,37 @@
+services:
+  # Jenkins Master Service
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.master # Assuming you also updated this one as per previous advice to include docker CLI if master also runs docker commands.
+    container_name: jenkins-master
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # Master needs access to run Docker commands
+    environment:
+      - JAVA_OPTS=-Xmx4096m -Xms512m -Dhudson.model.DirectoryBrowserSupport.CSP="script-src 'unsafe-inline' 'unsafe-eval' 'self' data:; style-src 'self' 'unsafe-inline'; default-src 'self' 'unsafe-inline' 'unsafe-eval' data:; img-src 'self' data:; connect-src 'self';"
+    restart: always
+
+  # Jenkins Agent Service (Static / Permanent Agent)
+  jenkins-agent:
+    build: # <--- CHANGE THIS TO BUILD FROM DOCKERFILE.AGENT
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: jenkins-agent
+    ports:
+      - "8081:8081"
+      - "22:22"
+    depends_on:
+      - jenkins
+    volumes:
+      - ./ca42-automation:/home/jenkins/ca42-automation
+      - /var/run/docker.sock:/var/run/docker.sock # <--- THIS IS CRUCIAL FOR THE AGENT
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_NAME=testor
+      - JENKINS_SECRET=bca33670d95b1e53d351e5d9f223db4f300dca1f87dbe9e79ed0f1063070850d
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+    restart: always
