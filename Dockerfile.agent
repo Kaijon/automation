@@ -1,0 +1,90 @@
+FROM jenkins/inbound-agent:latest-jdk17
+
+# Switch to root user to install necessary packages
+USER root
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        vim \
+        build-essential \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        wget \
+        curl \
+        llvm \
+        libncurses5-dev \
+        libncursesw5-dev \
+        xz-utils \
+        tk-dev \
+        libffi-dev \
+        liblzma-dev \ 
+        libmagic1 \
+        libmagic-dev \
+        file \
+        # --- NEW CRITICAL ADDITION FOR OpenCV (cv2) ---
+        libgl1-mesa-glx \
+        # Sometimes also needed for OpenCV depending on exact usage:
+        libsm6 \
+        libxrender1 \
+        libfontconfig1 \
+        libgtk2.0-0 \
+        # --- END NEW CRITICAL ADDITION ---        
+        && \        
+    rm -rf /var/lib/apt/lists/*
+
+ARG PYTHON_VERSION=3.10.13 # You can change this to the desired 3.10.x version
+RUN set -ex && \
+    wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -O /tmp/python.tgz && \
+    tar -xzf /tmp/python.tgz -C /tmp/ && \
+    cd /tmp/Python-${PYTHON_VERSION} && \
+    ./configure --enable-optimizations --with-ssl --prefix=/usr/local/python3.10 && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd /
+    #rm -rf /tmp/python.tgz /tmp/Python-${PYTHON_VERSION}
+
+RUN ln -s /usr/local/python3.10/bin/python3.10 /usr/local/bin/python3.10 && \
+    ln -s /usr/local/python3.10/bin/pip3.10 /usr/local/bin/pip3.10 && \
+    ln -s /usr/local/python3.10/bin/python3.10 /usr/local/bin/python && \
+    ln -s /usr/local/python3.10/bin/pip3.10 /usr/local/bin/pip && \
+    ln -s /usr/local/python3.10/bin/python3.10 /usr/local/bin/python3 && \
+    ln -s /usr/local/python3.10/bin/pip3.10 /usr/local/bin/pip3
+    
+RUN pip install --upgrade pip
+RUN pip install pipenv && \
+    pip install -U setuptools==57.5.0 
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install iputils-ping for the 'ping' command (if you haven't already)
+RUN apt-get update && \
+    apt-get install -y iputils-ping && \
+    apt-get install -y xsltproc && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install pytest globally using pip3
+RUN pip3 install --no-cache-dir pytest
+
+RUN apt-get update && \
+    apt-get install -y iputils-ping && \
+    apt-get install -y openssh-client && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# Install Paramiko for Python SSH capabilities (if not already there)
+RUN pip3 install paramiko 
+
+# (Optional) Add any other tools your tests might need, e.g., git
+RUN apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/usr/local/python3.10/bin:${PATH}"
+# Switch back to the jenkins user
+USER jenkins
+
+# Set the working directory (optional, but good practice)
+WORKDIR /home/jenkins/agent
