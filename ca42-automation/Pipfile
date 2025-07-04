@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# Your project dependencies
+paramiko = "*" # If your ssh_resource uses paramiko and it's a project dependency
+requests = "*" # If your fota.py uses requests and it's a project dependency
+dicttoxml = "*"
+python-magic = "*" # Or libmagic if that's what you decided
+opencv-python = "*" # <--- Add this line for cv2
+
+[dev-packages]
+pytest = "*"
+pytest-html = "*"
+py = "*"
+# Add any other dev tools here
+
+[requires]
+python_version = "3.10"
