@@ -1,0 +1,10 @@
+#!/bin/sh
+export CA42_USERNAME='root'
+export CA42_PASSWORD='getac123'
+export RTSP_USERNAME='admin'
+export RTSP_PASSWORD='4200'
+export #TC_TOKEN="eyJ0eXAiOiAiVENWMiJ9.Ui1NNlR3Zk4zVTVsbm9MMENqbWplWHBjZlhr.NzMyZWUzM2MtOTAyOC00MDA1LTlkMDQtYjRlYmQ4YTkyZGQx"
+export TC_TOKEN='eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
+# Verify they are set:
+echo $CA42_USERNAME
+echo $TC_TOKEN
