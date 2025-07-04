@@ -4,17 +4,17 @@ pipeline {
     //}
     agent any
     stages {
-        stage('Install Test Dependencies with Pipenv') {
-            steps {
-                script {
-                    echo "Installing Python test dependencies with Pipenv..."
-                    // Change directory to your project root where Pipfile/Pipfile.lock are located
-                    // Use --dev to install development dependencies (including pytest itself)
-                    sh 'cd /home/jenkins/ca42-automation && pipenv install --dev'
-                    echo "Python test dependencies installed."
-                }
-            }
-        }        
+        //stage('Install Test Dependencies with Pipenv') {
+        //    steps {
+        //        script {
+        //            echo "Installing Python test dependencies with Pipenv..."
+        //            // Change directory to your project root where Pipfile/Pipfile.lock are located
+        //            // Use --dev to install development dependencies (including pytest itself)
+        //            sh 'cd /home/jenkins/ca42-automation && pipenv install --dev'
+        //            echo "Python test dependencies installed."
+        //        }
+        //    }
+        //}        
         stage('Download Firmware Artifact') {
             steps {
                 script {
