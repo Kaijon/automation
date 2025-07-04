@@ -31,7 +31,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # <--- THIS IS CRUCIAL FOR THE AGENT
     environment:
       - JENKINS_URL=http://jenkins:8080
-      - JENKINS_NAME=testor
-      - JENKINS_SECRET=bca33670d95b1e53d351e5d9f223db4f300dca1f87dbe9e79ed0f1063070850d
+      - JENKINS_NAME=CA42-Testor
+      - JENKINS_SECRET=eedbd380c8c90324d2cb0ee6e7e58db3cfc11ca9f1c21ddf4b6b7cda3fca5f34
       - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
     restart: always
