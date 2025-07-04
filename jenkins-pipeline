@@ -21,7 +21,7 @@ pipeline {
                     echo "Navigating to project directory and downloading firmware..."
                     sh '''
                         cd /home/jenkins/ca42-automation
-                        . env.sh
+                        . /home/jenkins/ca42-automation/env.sh
                         python cmdline/all_in_one.py download_artifact
                     '''
                     echo "Firmware download initiated."
