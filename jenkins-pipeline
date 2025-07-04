@@ -10,8 +10,7 @@ pipeline {
                     echo "Installing Python test dependencies with Pipenv..."
                     // Change directory to your project root where Pipfile/Pipfile.lock are located
                     // Use --dev to install development dependencies (including pytest itself)
-                    // sh 'cd /home/jenkins/ca42-automation && pipenv install --dev'
-                    sh 'pipenv install --dev'
+                    sh 'cd ca42-automation && pipenv install --dev'
                     echo "Python test dependencies installed."
                 }
             }
@@ -21,8 +20,7 @@ pipeline {
                 script {
                     echo "Navigating to project directory and downloading firmware..."
                     sh '''
-                        cd /home/jenkins/ca42-automation
-                        . /home/jenkins/ca42-automation/env.sh
+                        . env.sh
                         python cmdline/all_in_one.py download_artifact
                     '''
                     echo "Firmware download initiated."
