@@ -73,6 +73,8 @@ RUN apt-get update && \
     apt-get install -y openssh-client && \
     rm -rf /var/lib/apt/lists/*
 
+# Install pytest tool
+RUN pip3 install fire toml requests exchangelib
 
 # Install Paramiko for Python SSH capabilities (if not already there)
 RUN pip3 install paramiko 
