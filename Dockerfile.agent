@@ -69,6 +69,7 @@ RUN apt-get update && \
 RUN pip3 install --no-cache-dir pytest
 
 RUN apt-get update && \
+    apt-get install -y unzip && \
     apt-get install -y iputils-ping && \
     apt-get install -y openssh-client && \
     rm -rf /var/lib/apt/lists/*
