@@ -75,7 +75,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install pytest tool
-RUN pip3 install fire toml requests exchangelib
+RUN pip3 install fire toml requests exchangelib pytest-html
 
 # Install Paramiko for Python SSH capabilities (if not already there)
 RUN pip3 install paramiko 

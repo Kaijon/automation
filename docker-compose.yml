@@ -32,6 +32,6 @@ services:
     environment:
       - JENKINS_URL=http://jenkins:8080
       - JENKINS_NAME=CA42-Testor
-      - JENKINS_SECRET=eedbd380c8c90324d2cb0ee6e7e58db3cfc11ca9f1c21ddf4b6b7cda3fca5f34
+      - JENKINS_SECRET=036bd13c05a9addb8a6754076c58220d9d3af72534922defc9bdb3b327d129d4
       - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
     restart: always
