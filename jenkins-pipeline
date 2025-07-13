@@ -85,12 +85,7 @@ pipeline {
                     sh '''
                         cd /home/jenkins/ca42-automation
                         pipenv run pytest tests/demo/test_fn.py \
-                        --html=PytestReport.html --self-contained-html \
-                        --junitxml=pytest-results.xml
-                        xsltproc scripts/junit-to-html.xsl pytest-results.xml > junit_report.html
-                        cp Report.html "${WORKSPACE}/index.html"
-                        cp pytest-results.xml "${WORKSPACE}/pytest-results.xml"
-                        cp junit_report.html "${WORKSPACE}/junit_report.html"
+                        --html=PytestReport.html --self-contained-html
                     '''
                     echo "Pytest execution finished."
                 }
@@ -98,6 +93,7 @@ pipeline {
         }
         stage('Publish HTML Report') {
             steps {
+                archiveArtifacts artifacts: 'PytestReport.html', followSymlinks: false
                 echo "Publishing generated HTML report..."
                 publishHTML(
                     target: [
@@ -106,8 +102,8 @@ pipeline {
                         keepAll: true,
                         reportDir: '.', // This should be the directory relative to WORKSPACE where Report.html is
                                         // Since you copied it to WORKSPACE root, '.' is correct.
-                        reportFiles: 'index.html, pytest-results.xml, junit_report.html', // The specific HTML file to publish
-                        reportName: 'PytestReport', // The name that will appear in Jenkins UI
+                        reportFiles: 'PytestReport.html', // The specific HTML file to publish
+                        reportName: 'Pytest Test Report', // The name that will appear in Jenkins UI
                         reportTitles: ''
                     ]
                 )
