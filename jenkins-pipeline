@@ -86,6 +86,7 @@ pipeline {
                         cd /home/jenkins/ca42-automation
                         pipenv run pytest tests/demo/test_fn.py \
                         --html=PytestReport.html --self-contained-html
+                        cp PytestReport.html {workspace}
                     '''
                     echo "Pytest execution finished."
                 }
