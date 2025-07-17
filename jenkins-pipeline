@@ -59,21 +59,21 @@ pipeline {
         //    }
         //}        
         //stage('Monitor Device Ready for TEST') {
-            steps {
-                script {
-                    echo "Starting device LED status monitoring..."
-                    // Securely inject SSH credentials as environment variables
-                    //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
-                        sh '''
-                            cd /home/jenkins/ca42-automation # Go to your project root
-                            . /home/jenkins/ca42-automation/env.sh # Source environment if needed
-                            python watch-dev-ca42a.py
-                        '''
-                    //}
-                    echo "Device monitoring script finished."
-                }
-            }
-        //}
+        //   steps {
+        //        script {
+        //            echo "Starting device LED status monitoring..."
+        //            // Securely inject SSH credentials as environment variables
+        //            //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
+        //                sh '''
+        //                    cd /home/jenkins/ca42-automation # Go to your project root
+        //                    . /home/jenkins/ca42-automation/env.sh # Source environment if needed
+        //                    python watch-dev-ca42a.py
+        //                '''
+        //            //}
+        //            echo "Device monitoring script finished."
+        //        }
+        //    }
+        ////}
         stage('Run Pytest') {
             steps {
                 script {
