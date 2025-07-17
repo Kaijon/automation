@@ -15,7 +15,7 @@ pipeline {
         //        }
         //    }
         //}        
-        stage('Download Firmware Artifact') {
+        //stage('Download Firmware Artifact') {
             steps {
                 script {
                     echo "Navigating to project directory and downloading firmware..."
@@ -27,8 +27,8 @@ pipeline {
                     echo "Firmware download initiated."
                 }
             }
-        }
-        stage('Monitor Device Ready for FOTA') {
+        //}
+        //stage('Monitor Device Ready for FOTA') {
             steps {
                 script {
                     echo "Starting device LED status monitoring..."
@@ -43,8 +43,8 @@ pipeline {
                     echo "Device monitoring script finished."
                 }
             }
-        }        
-        stage('FOTA progress') {
+        //}        
+        //stage('FOTA progress') {
             steps {
                 script {
                     echo "Navigating to project directory and downloading firmware..."
@@ -57,8 +57,8 @@ pipeline {
                     echo "Firmware fota done."
                 }
             }
-        }        
-        stage('Monitor Device Ready for TEST') {
+        //}        
+        //stage('Monitor Device Ready for TEST') {
             steps {
                 script {
                     echo "Starting device LED status monitoring..."
@@ -73,7 +73,7 @@ pipeline {
                     echo "Device monitoring script finished."
                 }
             }
-        }
+        //}
         stage('Run Pytest') {
             steps {
                 script {
