@@ -16,47 +16,47 @@ pipeline {
         //    }
         //}        
         //stage('Download Firmware Artifact') {
-            steps {
-                script {
-                    echo "Navigating to project directory and downloading firmware..."
-                    sh '''
-                        cd /home/jenkins/ca42-automation
-                        . /home/jenkins/ca42-automation/env.sh
-                        python cmdline/all_in_one.py download_artifact
-                    '''
-                    echo "Firmware download initiated."
-                }
-            }
+        //    steps {
+        //        script {
+        //            echo "Navigating to project directory and downloading firmware..."
+        //            sh '''
+        //                cd /home/jenkins/ca42-automation
+        //                . /home/jenkins/ca42-automation/env.sh
+        //                python cmdline/all_in_one.py download_artifact
+        //            '''
+        //            echo "Firmware download initiated."
+        //        }
+        //    }
         //}
         //stage('Monitor Device Ready for FOTA') {
-            steps {
-                script {
-                    echo "Starting device LED status monitoring..."
-                    // Securely inject SSH credentials as environment variables
-                    //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
-                        sh '''
-                            cd /home/jenkins/ca42-automation # Go to your project root
-                            . /home/jenkins/ca42-automation/env.sh # Source environment if needed
-                            python watch-dev-ca42a.py
-                        '''
-                    //}
-                    echo "Device monitoring script finished."
-                }
-            }
+        //    steps {
+        //        script {
+        //            echo "Starting device LED status monitoring..."
+        //            // Securely inject SSH credentials as environment variables
+        //            //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
+        //                sh '''
+        //                    cd /home/jenkins/ca42-automation # Go to your project root
+        //                    . /home/jenkins/ca42-automation/env.sh # Source environment if needed
+        //                    python watch-dev-ca42a.py
+        //                '''
+        //            //}
+        //            echo "Device monitoring script finished."
+        //        }
+        //    }
         //}        
         //stage('FOTA progress') {
-            steps {
-                script {
-                    echo "Navigating to project directory and downloading firmware..."
-                    // Navigate to the base directory of your project
-                    // and then execute the commands in a single shell session.
-                    sh '''
-                        cd /home/jenkins/ca42-automation
-                        python fota.py
-                    '''
-                    echo "Firmware fota done."
-                }
-            }
+        //    steps {
+        //        script {
+        //            echo "Navigating to project directory and downloading firmware..."
+        //            // Navigate to the base directory of your project
+        //            // and then execute the commands in a single shell session.
+        //            sh '''
+        //                cd /home/jenkins/ca42-automation
+        //                python fota.py
+        //            '''
+        //            echo "Firmware fota done."
+        //        }
+        //    }
         //}        
         //stage('Monitor Device Ready for TEST') {
             steps {
