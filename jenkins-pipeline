@@ -113,7 +113,7 @@ pipeline {
                     def n8nWebhookUrl = "http://10.195.1.13:5678/webhook-test/jenkins-items"
                     def reportFilePath = "${WORKSPACE}/PytestReport.html"
                     sh """
-                        curl -X POST -F "data=@/home/jenkins/ca42-automaiton/PytestReport.html" http://10.195.1.13:5678/webhook/jenkins-items
+                        curl -X POST -F "data=@/home/jenkins/ca42-automation/PytestReport.html" http://10.195.1.13:5678/webhook/jenkins-items
                     """
 
                     echo ">>>>>>>>>> Request a Webhook for n8n completed. >>>>>>>>>>"
