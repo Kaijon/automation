@@ -110,7 +110,7 @@ pipeline {
                 )
                 script {
                     echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"
-                 def n8nWebhookUrl = "http://localhost:5678/webhook-test/45f8e11c-b1dd-46b5-acf8-5e55f4090aff"
+                 def n8nWebhookUrl = "http://10.195.1.13:5678/webhook-test/45f8e11c-b1dd-46b5-acf8-5e55f4090aff"
                     def reportFilePath = "${WORKSPACE}/PytestReport.html"
 
                     // Read the content of the report file
