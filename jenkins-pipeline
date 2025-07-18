@@ -110,37 +110,14 @@ pipeline {
                 )
                 script {
                     echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"
-                 def n8nWebhookUrl = "http://10.195.1.13:5678/webhook-test/45f8e11c-b1dd-46b5-acf8-5e55f4090aff"
+                    def n8nWebhookUrl = "http://10.195.1.13:5678/webhook/jenkins-items"
                     def reportFilePath = "${WORKSPACE}/PytestReport.html"
+                    sh """
+                        curl -X POST \
+                             -F "data=@${WORKSPACE}/PytestReport.html"
+                             "${n8nWebhookUrl}"
+                    """
 
-                    // Read the content of the report file
-                    def reportContent = readFile(reportFilePath)
-
-                    // Send the POST request to n8n
-                    try {
-                        def response = httpRequest (
-                            url: n8nWebhookUrl,
-                            httpMode: 'POST',
-                            contentType: 'APPLICATION_JSON', // Or 'TEXT_HTML', or 'APPLICATION_OCTETSTREAM' depending on how n8n expects it
-                            requestBody: """
-                            {
-                                "reportName": "PytestReport.html",
-                                "reportContent": "${reportContent}"
-                            }
-                            """
-                            // If n8n expects multipart/form-data for a file upload:
-                            /*
-                            formData: [
-                                [name: 'file', fileName: 'PytestReport.html', uploadFile: reportFilePath, contentType: 'text/html']
-                            ]
-                            */
-                        )
-                        echo "n8n response status: ${response.status}"
-                        echo "n8n response body: ${response.content}"
-                    } catch (Exception e) {
-                        echo "Failed to send report to n8n: ${e.getMessage()}"
-                        currentBuild.result = 'UNSTABLE' // Or 'FAILURE' if this is critical
-                    }
                     echo ">>>>>>>>>> Request a Webhook for n8n completed. >>>>>>>>>>"
                 }                
             }
