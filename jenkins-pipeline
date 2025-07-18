@@ -114,7 +114,7 @@ pipeline {
                     def reportFilePath = "${WORKSPACE}/PytestReport.html"
                     sh """
                         curl -X POST \
-                             -F "data=@${WORKSPACE}/PytestReport.html"
+                             -F "data=@${WORKSPACE}/PytestReport.html" \
                              "${n8nWebhookUrl}"
                     """
 
