@@ -23,7 +23,7 @@ services:
     container_name: jenkins-agent
     ports:
       - "8081:8081"
-      - "22:22"
+      - "22:22"    
     depends_on:
       - jenkins
     volumes:
