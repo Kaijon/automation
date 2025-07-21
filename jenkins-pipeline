@@ -124,76 +124,46 @@ pipeline {
     post {
         always {
             script {
-                echo "Triggering TeamCity build after pipeline completion..."
+                        def teamcityServerUrl = "https://iotsw-athena.veretos.com:8282/" // Replace with your TeamCity server URL
+                        def tcBuildConfId = "Test_ReportCollector" // Replace with the actual Build Configuration ID of your TeamCity Report_Collector build (e.g., 'MyProject_ReportCollector')
 
-                def TEAMCITY_SERVER = "http://192.168.236.134:8111"
-                def TEAMCITY_BUILD_CONFIG_ID = "PytestReportAggregator"
-                def TEAMCITY_TRIGGER_SECRET = "eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy"
-                def TEAMCITY_API_TOKEN_FOR_HEADER = "eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy"                 
-                def AUTH_HEADER_VALUE = "Bearer ${TEAMCITY_API_TOKEN_FOR_HEADER}"
+                        // Use Jenkins credentials for TeamCity, or define them in Jenkins Credentials Manager
+                        // For production, use credentials() helper
+                        def teamcityUser = "Jenkinsagent" // TeamCity user for triggering
+                        def teamcityPassword = "Jenkinsagent" // API Token for the TeamCity user
 
-                def TEAMCITY_API_USER = "lab"
-                def TEAMCITY_API_PASS = "lab" // Your TeamCity password/token
-                def TRIGGER_URL = "${TEAMCITY_SERVER}/httpAuth/app/rest/buildQueue?triggeringToken=${TEAMCITY_TRIGGER_SECRET}"
+                        // Pass Jenkins build details to TeamCity for artifact download
+                        //def jenkinsBuildUrl = env.BUILD_URL // This will be like http://localhost:8080/job/dev-ca42a/5/
+                        //def jenkinsJobName = env.JOB_NAME    // This will be 'dev-ca42a'
+                        //def jenkinsBuildNumber = env.BUILD_NUMBER // This will be the current Jenkins build number (e.g., '5')
+                        def jenkinsBuildUrl = "http://localhost:8080/job/dev-ca42a/5/" // This will be like http://localhost:8080/job/dev-ca42a/5/
+                        def jenkinsJobName = "dev-ca42a"    // This will be 'dev-ca42a'
+                        def jenkinsBuildNumber = "5" // This will be the current Jenkins build number (e.g., '5')
 
-                // Construct the URL without httpAuth and without triggeringToken
-                // TeamCity's REST API with Bearer tokens often doesn't use /httpAuth/ or triggeringToken in the URL itself
-                def TRIGGER_URL_BEARER = "${TEAMCITY_SERVER}/app/rest/buildQueue" // <--- Check TeamCity REST API docs for exact endpoint
 
+                        echo "Triggering TeamCity build: ${tcBuildConfId} for Jenkins build ${jenkinsBuildNumber}..."
 
-                // --- REVISED XML PAYLOAD CONSTRUCTION ---
-                // Using a list of strings to build the XML, ensuring proper double quotes for XML attributes.
-                // It's safer to use double quotes for XML attributes as they are less prone to shell misinterpretation.
-                def XML_PAYLOAD_LINES = [
-                    "<build branchName=\"master\" buildTypeId=\"${TEAMCITY_BUILD_CONFIG_ID}\">",
-                    "    <properties>",
-                    "        <property name=\"env.JENKINS_BUILD_NUMBER\" value=\"${env.BUILD_NUMBER}\"/>",
-                    "        <property name=\"env.JENKINS_BUILD_URL\" value=\"${env.BUILD_URL}\"/>",
-                    "        <property name=\"env.JENKINS_JOB_NAME\" value=\"${env.JOB_NAME}\"/>",
-                    "    </properties>",
-                    "</build>"
-                ]
-                def XML_PAYLOAD = XML_PAYLOAD_LINES.join('\n')
-                // --- END REVISED XML PAYLOAD CONSTRUCTION ---
+                        // Construct the XML payload for triggering a build with parameters
+                        def postData = """
+                            <build branchName="master">
+                                <buildType id="${tcBuildConfId}"/>
+                                <properties>
+                                    <property name="env.JENKINS_BUILD_URL" value="${jenkinsBuildUrl}"/>
+                                    <property name="env.JENKINS_JOB_NAME" value="${jenkinsJobName}"/>
+                                    <property name="env.JENKINS_BUILD_NUMBER" value="${jenkinsBuildNumber}"/>
+                                </properties>
+                            </build>
+                        """
 
-                // Define a path for the temporary XML file
-                def PAYLOAD_FILE = "${WORKSPACE}/teamcity_trigger_payload.xml"
+                        // Execute curl command to trigger TeamCity
+                        sh """
+                            curl -X POST -H 'Content-Type:application/xml' \\
+                                -u '${teamcityUser}:${teamcityPassword}' \\
+                                '${teamcityServerUrl}/httpAuth/app/rest/buildQueue' \\
+                                --data '${postData}'
+                        """
+                        echo "TeamCity build trigger request sent."
 
-                try {
-                    // Write the XML payload to a temporary file
-                    writeFile(file: PAYLOAD_FILE, text: XML_PAYLOAD)
-
-                    // Execute the curl command, reading from the temporary file
-                    sh """
-                        curl -X POST \
-                             -H "Content-Type: application/xml" \
-                             -H "Accept: application/json" \
-                             -u "${TEAMCITY_API_USER}:${TEAMCITY_API_PASS}" \
-                             --data-binary "@${PAYLOAD_FILE}" \
-                             "${TRIGGER_URL}"
-                    """
-            
-                    def CONTENT_TYPE_HEADER = "Content-Type: application/xml"
-                    def ACCEPT_HEADER = "Accept: application/json"
-                    def AUTHORIZATION_HEADER = "Authorization: Bearer ${TEAMCITY_API_TOKEN_FOR_HEADER}" // Ensure the space after Bearer
-            
-                    //sh """
-                    //    curl -X POST \
-                    //         -H \"${CONTENT_TYPE_HEADER}\" \
-                    //         -H \"${ACCEPT_HEADER}\" \
-                    //         -H \"${AUTHORIZATION_HEADER}\" \
-                    //         --data-binary "@${PAYLOAD_FILE}" \
-                    //         "${TRIGGER_URL}"
-                    //"""
-                    //echo "TeamCity build triggered successfully."
-                    echo "TeamCity build triggered successfully using Bearer token."
-                } catch (Exception e) {
-                    echo "WARNING: Failed to trigger TeamCity build: ${e.getMessage()}"
-                } finally {
-                    // Clean up the temporary file
-                   //deleteDir(file: PAYLOAD_FILE)
-                    sh "rm -f {PAYLOAD_FILE}"
-                }
             }
         }
     }
