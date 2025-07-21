@@ -136,7 +136,7 @@ pipeline {
                         //def jenkinsBuildUrl = env.BUILD_URL // This will be like http://localhost:8080/job/dev-ca42a/5/
                         //def jenkinsJobName = env.JOB_NAME    // This will be 'dev-ca42a'
                         //def jenkinsBuildNumber = env.BUILD_NUMBER // This will be the current Jenkins build number (e.g., '5')
-                        def jenkinsBuildUrl = "http://localhost:8080/job/dev-ca42a/5/" // This will be like http://localhost:8080/job/dev-ca42a/5/
+                        def jenkinsBuildUrl = "http://10.195.1.13:8080/job/dev-ca42a/5/" // This will be like http://localhost:8080/job/dev-ca42a/5/
                         def jenkinsJobName = "dev-ca42a"    // This will be 'dev-ca42a'
                         def jenkinsBuildNumber = "5" // This will be the current Jenkins build number (e.g., '5')
 
