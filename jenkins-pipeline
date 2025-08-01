@@ -191,7 +191,8 @@ pipeline {
                     }
                 }
             }
-        
+    }
+}
     post {
         always {
             script {
