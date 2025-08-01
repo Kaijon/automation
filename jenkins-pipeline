@@ -146,7 +146,52 @@ pipeline {
                 }                
             }
         }
-    }    
+    }
+          stage('Signal Teamcity') {
+            steps {
+                script {
+                    echo "Echo Teamcity"
+
+                    def teamcityServerUrl = env.TEAMCITY_SERVER_URL
+                    def teamcityBuildId = env.TEAMCITY_BUILD_ID
+                    def paramNameBuildLink = "jenkins.build.link"
+                    def paramNameArtifactsLink = "jenkins.artifacts.link"
+
+                    if (!teamcityBuildId) {
+                        error "TEAMCITY_BUILD_ID environment variable not found. Cannot report back to TeamCity."
+                    }
+                    if (!teamcityServerUrl) {
+                        teamcityServerUrl = "https://iotsw-athena.veretos.com:8282"
+                        echo "Warning: TEAMCITY_SERVER_URL not found in env, using hardcoded fallback: ${teamcityServerUrl}"
+                    }
+
+                    withCredentials([usernamePassword(credentialsId: 'TEAMCITY_CREDENTIALS', usernameVariable: 'TC_USERNAME', passwordVariable: 'TC_PASSWORD')]) {
+                        echo "Reporting Jenkins Build URL to TeamCity for build ID: ${teamcityBuildId}"
+
+                        def authHeader = "Basic " + "${TC_USERNAME}:${TC_PASSWORD}".bytes.encodeBase64().toString()
+
+                        try {
+                            def teamcityCommentApiUrl = "${teamcityServerUrl}/app/rest/builds/id:${teamcityBuildId}/comment"
+                            //def commentText = "Jenkins Build: ${env.jenkinsBuildUrl} | Artifacts: ${env.jenkinsArtifactsUrl}"
+                            def commentText = "Jenkins Artifacts: ${env.jenkinsArtifactsUrl}"
+
+                            httpRequest customHeaders: [[name: 'Content-Type', value: 'text/plain'], [name: 'Authorization', value: authHeader]],
+                                        consoleLogResponseBody: true,
+                                        httpMode: 'PUT',
+                                        requestBody: commentText,
+                                        url: teamcityCommentApiUrl,
+                                        validResponseCodes: '200,204' // <--- ADD 204 HERE!
+                            echo "Successfully added comment to TeamCity build."
+
+                        } catch (Exception e) {
+                            echo "Failed to report to TeamCity: ${e.message}"
+                            // Remove the error step as it's now successful, unless you want to re-try other methods
+                            // error "Failed to report to TeamCity due to an API error."
+                        }
+                    }
+                }
+            }
+        }
     post {
         always {
             script {
