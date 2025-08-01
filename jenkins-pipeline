@@ -168,7 +168,7 @@ pipeline {
                         try {
                             def teamcityCommentApiUrl = "${teamcityServerUrl}/app/rest/builds/id:${teamcityBuildId}/comment"
                             //def commentText = "Jenkins Build: ${env.jenkinsBuildUrl} | Artifacts: ${env.jenkinsArtifactsUrl}"
-                            def commentText = "Jenkins Artifacts: ${env.jenkinsBuildUrl}"
+                            def commentText = "Jenkins Artifacts: ${env.jenkinsArtifactsUrl}"
 
                             httpRequest customHeaders: [[name: 'Content-Type', value: 'text/plain'], [name: 'Authorization', value: authHeader]],
                                         consoleLogResponseBody: true,
