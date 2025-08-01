@@ -146,7 +146,6 @@ pipeline {
                 }                
             }
         }
-    }
     stage('Signal Teamcity') {
         steps {
             script {
@@ -166,7 +165,8 @@ pipeline {
             }
         }
     }
-}
+
+    }
     post {
         always {
             script {
