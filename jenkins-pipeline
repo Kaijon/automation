@@ -134,15 +134,20 @@ pipeline {
                         reportTitles: ''
                     ]
                 )
-                //script {
-                //    echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"
-                //    def n8nWebhookUrl = "http://192.168.61.69:5678/webhook/jenkins-items"
-                //    def reportFilePath = "${WORKSPACE}/PytestReport.html"
-                //    sh """
-                //        curl -X POST -F "data=@/home/jenkins/ca42-automation/PytestReport.html" http://192.168.61.69:5678/webhook/jenkins-items
-                //    """
-                //    echo ">>>>>>>>>> Request a Webhook for n8n completed. >>>>>>>>>>"
-                //}                
+                script {
+                    try {
+                        echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"
+                        def n8nWebhookUrl = "http://192.168.61.69:5678/webhook/jenkins-items"
+                        def reportFilePath = "${WORKSPACE}/PytestReport.html"
+                        sh """
+                            curl -X POST -F "data=@/home/jenkins/ca42-automation/PytestReport.html" http://192.168.61.69:5678/webhook/jenkins-items
+                        """
+                        echo ">>>>>>>>>> Request a Webhook for n8n completed. >>>>>>>>>>"
+                    } catch (Exception e) {
+                        echo "Warning: Request a n8n Webhook failed: ${e.message}"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }                
             }
         }
         stage('Signal Teamcity') {
