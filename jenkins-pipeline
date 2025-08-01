@@ -23,7 +23,7 @@ pipeline {
                     // echo "TEAMCITY_API_TOKEN: ${env.TEAMCITY_API_TOKEN}" // No longer needed if using username/password
                     def rawBuildUrl = env.BUILD_URL
                     def httpBuildUrl = rawBuildUrl.replace('https://', 'http://')  // Ensure artifact URL also uses http
-                    env.jenkinsBuildUrl = httpBuildUrl
+                    env.jenkinsBuildUrl = httpBuildUrl/Pytest_20Test_20Report/
                     env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/Pytest_20Test_20Report/"
                     echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
                     echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
