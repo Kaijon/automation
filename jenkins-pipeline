@@ -146,26 +146,25 @@ pipeline {
                 }                
             }
         }
-    stage('Signal Teamcity') {
-        steps {
-            script {
-                echo "Echo Teamcity"
-                def teamcityServerUrl = env.TEAMCITY_SERVER_URL
-                def teamcityBuildId = env.TEAMCITY_BUILD_ID
-                def paramNameBuildLink = "jenkins.build.link"
-                def paramNameArtifactsLink = "jenkins.artifacts.link"
-                if (!teamcityBuildId) {
-                    error "TEAMCITY_BUILD_ID environment variable not found. Cannot report back to TeamCity."
+        stage('Signal Teamcity') {
+            steps {
+                script {
+                    echo "Echo Teamcity"
+                    def teamcityServerUrl = env.TEAMCITY_SERVER_URL
+                    def teamcityBuildId = env.TEAMCITY_BUILD_ID
+                    def paramNameBuildLink = "jenkins.build.link"
+                    def paramNameArtifactsLink = "jenkins.artifacts.link"
+                    if (!teamcityBuildId) {
+                        error "TEAMCITY_BUILD_ID environment variable not found. Cannot report back to TeamCity."
+                    }
+                    if (!teamcityServerUrl) {
+                        teamcityServerUrl = "https://iotsw-athena.veretos.com:8282"
+                        echo "Warning: TEAMCITY_SERVER_URL not found in env, using hardcoded fallback: ${teamcityServerUrl}"
+                    }
+                    echo ">>>>>>>>>> Signal Teamcity completed. >>>>>>>>>>"
                 }
-                if (!teamcityServerUrl) {
-                    teamcityServerUrl = "https://iotsw-athena.veretos.com:8282"
-                    echo "Warning: TEAMCITY_SERVER_URL not found in env, using hardcoded fallback: ${teamcityServerUrl}"
-                }
-                echo ">>>>>>>>>> Signal Teamcity completed. >>>>>>>>>>"
             }
         }
-    }
-
     }
     post {
         always {
