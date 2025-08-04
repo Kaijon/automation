@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Check if the first argument is empty
-if [ -z "$1" ]; then
+if [ -z "$2" ]; then
     echo "Error: Missing argument."
-    echo "Usage: $0 <CA42 | CA42-A | CA22-G2>"
+    echo "Usage: . $1 <CA42 | CA42-A | CA22-G2>"
     exit 1
 fi
 
