@@ -194,6 +194,7 @@ pipeline {
     post {
         always {
             script {
+                echo "Jenkins POST proccess"
                 /*
                 def teamcityServerUrl = "https://iotsw-athena.veretos.com:8282/"
                 def tcBuildConfId = "Test_ReportCollector"
