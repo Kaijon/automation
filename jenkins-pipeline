@@ -20,7 +20,7 @@ pipeline {
                     echo 'Checking SSH availability...'
                     sh '''
                         . ./env.sh ${PROJECT_NAME}
-                        
+                        echo "PROJECT_ROOT:${PROJECT_ROOT}"
                         # Now change to the project directory defined by env.sh
                         cd ${PROJECT_ROOT}
                         
