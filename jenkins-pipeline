@@ -11,18 +11,34 @@ pipeline {
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
-        booleanParam(name: 'CANCEL_JOB', defaultValue: false, description: 'Set to true to immediately terminate the pipeline')
     }    
     stages {
-        stage('Check for Early Termination if ssh is unavailable') {
+        stage('Check for SSH Availability') {
+            steps {
+                script {
+                    echo 'Checking SSH availability...'
+                    sh '''
+                        . ./env.sh
+                        python ${PROJECT_ROOT}/ssh_check.py
+                    '''
+                    echo 'SSH is available, proceeding with the pipeline.'
+                }
+            }
+        }
+        stage('Monitor Device Ready') {
             when {
                 expression {
-                    return params.CANCEL_JOB
+                    return params.IS_DEVICE_ONLINE
                 }
             }
             steps {
                 script {
-                    error('Pipeline was intentionally terminated due to SSH not working.')
+                    echo "Starting device LED status monitoring..."
+                    sh '''
+                        . ./env.sh
+                        python ${PROJECT_ROOT}/watch-dev-ca42a.py
+                    '''
+                    echo "Device monitoring script finished."
                 }
             }
         }
