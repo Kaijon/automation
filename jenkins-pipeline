@@ -170,7 +170,7 @@ pipeline {
                     }
                     withCredentials([usernamePassword(credentialsId: 'TEAMCITY_CREDENTIALS', usernameVariable: 'TEAMCITY_API_USER', passwordVariable: 'TEAMCITY_API_TOKEN')]) {
                         echo "Reporting Jenkins Build URL to TeamCity for build ID: ${teamcityBuildId}"
-                        def authHeader = "Basic " + "${TC_USERNAME}:${TC_PASSWORD}".bytes.encodeBase64().toString()
+                        def authHeader = "Basic " + "${TEAMCITY_API_USER}:${TEAMCITY_API_TOKEN}".bytes.encodeBase64().toString()
                         try {
                             def teamcityCommentApiUrl = "${teamcityServerUrl}/app/rest/builds/id:${teamcityBuildId}/comment"
                             //def commentText = "Jenkins Build: ${env.jenkinsBuildUrl} | Artifacts: ${env.jenkinsArtifactsUrl}"
