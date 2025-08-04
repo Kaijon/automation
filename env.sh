@@ -21,7 +21,7 @@ case "$ARG" in
 		export PASSWORD='getac123'
 		export RTSP_USERNAME='admin'
 		export RTSP_PASSWORD='4200'
-		export PROJECT_ROOT='home/jenkins/ca42-automation'
+		export PROJECT_ROOT='/home/jenkins/ca42-automation'
         ;;
     "CA42-A")
         echo "Running stage for CA42-A..."
@@ -30,7 +30,7 @@ case "$ARG" in
 		export PASSWORD='getac123'
 		export RTSP_USERNAME='admin'
 		export RTSP_PASSWORD='4200'
-		export PROJECT_ROOT='home/jenkins/ca42a-automation'
+		export PROJECT_ROOT='/home/jenkins/ca42a-automation'
         ;;
 	"CA22-G2")
 	    echo "Running stage for CA22-G2..."
@@ -39,7 +39,7 @@ case "$ARG" in
 		export PASSWORD='getac123'
 		export RTSP_USERNAME='admin'
 		export RTSP_PASSWORD='2100'
-		export PROJECT_ROOT='home/jenkins/ca22-g2-automation'
+		export PROJECT_ROOT='/home/jenkins/ca22-g2-automation'
 	    ;;
     *)
         echo "Error: Invalid argument."
