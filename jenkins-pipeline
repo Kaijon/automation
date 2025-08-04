@@ -10,7 +10,7 @@ pipeline {
         string(name: 'TEAMCITY_SERVER_URL', defaultValue: 'https://iotsw-athena.veretos.com:8282', description: 'TeamCity Server URL for callback')
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
-        booleanParam(name: 'DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
+        booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
     }    
     stages {
         stage('Initial Jenknis Evironment') {
