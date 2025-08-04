@@ -18,13 +18,19 @@ pipeline {
                 script {
                     echo 'Checking SSH availability...'
                     sh '''
-                        ./env.sh CA42
-                        python ${PROJECT_ROOT}/ssh_check.py
+                        # CRITICAL: Change directory before sourcing env.sh
+                        # This ensures the shell is in the correct path and variables are set properly.
+                        cd /home/jenkins/ca42-automation
+                        . ./env.sh CA42
+                        # Now use the variable defined in env.sh. Use '$PROJECT_ROOT' to let the shell
+                        # perform the variable substitution after env.sh has run.
+                        python $PROJECT_ROOT/ssh_check.py
                     '''
                     echo 'SSH is available, proceeding with the pipeline.'
                 }
             }
         }
+        
         stage('Monitor Device Ready') {
             when {
                 expression {
