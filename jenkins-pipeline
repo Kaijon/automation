@@ -21,7 +21,7 @@ pipeline {
                     sh """
                         # Source the environment script from the current working directory, passing the project name.
                         # Using double quotes to allow Groovy variable interpolation.
-                        source ./env.sh "${PROJECT_NAME}"
+                        . ./env.sh "${PROJECT_NAME}"
                         
                         # Now change to the project directory defined by env.sh
                         cd "\${PROJECT_ROOT}"
