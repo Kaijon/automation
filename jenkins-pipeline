@@ -18,7 +18,7 @@ pipeline {
                 script {
                     echo 'Checking SSH availability...'
                     sh '''
-                        . ./env.sh
+                        . ./env.sh CA42
                         python ${PROJECT_ROOT}/ssh_check.py
                     '''
                     echo 'SSH is available, proceeding with the pipeline.'
@@ -35,7 +35,7 @@ pipeline {
                 script {
                     echo "Starting device LED status monitoring..."
                     sh '''
-                        . ./env.sh
+                        . ./env.sh CA42
                         python ${PROJECT_ROOT}/watch-dev-ca42a.py
                     '''
                     echo "Device monitoring script finished."
