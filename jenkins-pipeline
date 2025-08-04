@@ -25,8 +25,10 @@ pipeline {
                     def httpBuildUrl = rawBuildUrl.replace('https://', 'http://')  // Ensure artifact URL also uses http
                     env.jenkinsBuildUrl = httpBuildUrl
                     env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/PytestReport.html"
+                    env.n8nWebhookUrl = ${env.httpBuildUrl}webhook/jenkins-items
                     echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
                     echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
+                    echo "n8nWebhookUrl URL: ${env.n8nWebhookUrl}"
                 }
             }
         }
@@ -136,8 +138,7 @@ pipeline {
                 )
                 script {
                     try {
-                        echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"
-                        def n8nWebhookUrl = "http://192.168.61.69:5678/webhook/jenkins-items"
+                        echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"                    
                         def reportFilePath = "${WORKSPACE}/PytestReport.html"
                         sh """
                             curl -X POST -F "data=@/home/jenkins/ca42-automation/PytestReport.html" http://192.168.61.69:5678/webhook/jenkins-items
