@@ -1,5 +1,10 @@
 #!/bin/sh
 
+echo "$@"
+echo $1
+echo $2
+echo $#
+
 # Check if the first argument is empty
 if [ -z "$1" ]; then
     echo "Error: Missing argument."
