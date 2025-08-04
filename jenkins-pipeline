@@ -194,46 +194,42 @@ pipeline {
     post {
         always {
             script {
-                        def teamcityServerUrl = "https://iotsw-athena.veretos.com:8282/" // Replace with your TeamCity server URL
-                        def tcBuildConfId = "Test_ReportCollector" // Replace with the actual Build Configuration ID of your TeamCity Report_Collector build (e.g., 'MyProject_ReportCollector')
+                /*
+                def teamcityServerUrl = "https://iotsw-athena.veretos.com:8282/"
+                def tcBuildConfId = "Test_ReportCollector"
+                // Use Jenkins credentials for TeamCity, or define them in Jenkins Credentials Manager
+                // For production, use credentials() helper
+                def teamcityUser = "Jenkinsagent" // TeamCity user for triggering
+                def teamcityPassword = "Jenkinsagent" // API Token for the TeamCity user
 
-                        // Use Jenkins credentials for TeamCity, or define them in Jenkins Credentials Manager
-                        // For production, use credentials() helper
-                        def teamcityUser = "Jenkinsagent" // TeamCity user for triggering
-                        def teamcityPassword = "Jenkinsagent" // API Token for the TeamCity user
-
-                        // Pass Jenkins build details to TeamCity for artifact download
-                        //def jenkinsBuildUrl = env.BUILD_URL // This will be like http://localhost:8080/job/dev-ca42a/5/
-                        //def jenkinsJobName = env.JOB_NAME    // This will be 'dev-ca42a'
-                        //def jenkinsBuildNumber = env.BUILD_NUMBER // This will be the current Jenkins build number (e.g., '5')
-                        def jenkinsBuildUrl = "http://10.195.1.13:8080/job/dev-ca42a/5/" // This will be like http://localhost:8080/job/dev-ca42a/5/
-                        def jenkinsJobName = "dev-ca42a"    // This will be 'dev-ca42a'
-                        def jenkinsBuildNumber = "5" // This will be the current Jenkins build number (e.g., '5')
-
-
-                        echo "Triggering TeamCity build: ${tcBuildConfId} for Jenkins build ${jenkinsBuildNumber}..."
-
-                        // Construct the XML payload for triggering a build with parameters
-                        def postData = """
-                            <build branchName="master">
+                // Pass Jenkins build details to TeamCity for artifact download
+                //def jenkinsBuildUrl = env.BUILD_URL // This will be like http://localhost:8080/job/dev-ca42a/5/
+                //def jenkinsJobName = env.JOB_NAME   // This will be 'dev-ca42a'
+                //def jenkinsBuildNumber = env.BUILD_NUMBER // This will be the current Jenkins build number (e.g., '5')
+                def jenkinsBuildUrl = "http://10.195.1.13:8080/job/dev-ca42a/5/"
+                def jenkinsJobName = "dev-ca42a"
+                def jenkinsBuildNumber = "5"
+                echo "Triggering TeamCity build: ${tcBuildConfId} for Jenkins build ${jenkinsBuildNumber}..."
+                // Construct the XML payload for triggering a build with parameters
+                def postData = """
+                                <build branchName="master">
                                 <buildType id="${tcBuildConfId}"/>
                                 <properties>
                                     <property name="env.JENKINS_BUILD_URL" value="${jenkinsBuildUrl}"/>
                                     <property name="env.JENKINS_JOB_NAME" value="${jenkinsJobName}"/>
                                     <property name="env.JENKINS_BUILD_NUMBER" value="${jenkinsBuildNumber}"/>
                                 </properties>
-                            </build>
-                        """
-
-                        // Execute curl command to trigger TeamCity
-                        sh """
-                            curl -X POST -H 'Content-Type:application/xml' \\
-                                -u '${teamcityUser}:${teamcityPassword}' \\
-                                '${teamcityServerUrl}/httpAuth/app/rest/buildQueue' \\
-                                --data '${postData}'
-                        """
-                        echo "TeamCity build trigger request sent."
-
+                                </build>
+                               """
+                // Execute curl command to trigger TeamCity
+                sh """
+                    curl -X POST -H 'Content-Type:application/xml' \\
+                           -u '${teamcityUser}:${teamcityPassword}' \\
+                           '${teamcityServerUrl}/httpAuth/app/rest/buildQueue' \\
+                           --data '${postData}'
+                """
+                echo "TeamCity build trigger request sent."
+                */
             }
         }
     }
