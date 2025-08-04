@@ -136,6 +136,7 @@ pipeline {
                         reportTitles: ''
                     ]
                 )
+                /*
                 script {
                     try {
                         echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"                    
@@ -148,7 +149,8 @@ pipeline {
                         echo "Warning: Request a n8n Webhook failed: ${e.message}"
                         currentBuild.result = 'UNSTABLE'
                     }
-                }                
+                }
+                */
             }
         }
         stage('Signal Teamcity') {
