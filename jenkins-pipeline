@@ -25,7 +25,7 @@ pipeline {
                     def httpBuildUrl = rawBuildUrl.replace('https://', 'http://')  // Ensure artifact URL also uses http
                     env.jenkinsBuildUrl = httpBuildUrl
                     env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/PytestReport.html"
-                    env.n8nWebhookUrl = ${env.jenkinsBuildUrl}webhook/jenkins-items
+                    env.n8nWebhookUrl = "${env.jenkinsBuildUrl}webhook/jenkins-items"
                     echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
                     echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
                     echo "n8nWebhookUrl URL: ${env.n8nWebhookUrl}"
