@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     echo 'Checking SSH availability...'
-                    sh '''
+                    sh """
                         pwd
                         echo "PROJECT_NAME:${PROJECT_NAME}"
                         . ./env.sh ${PROJECT_NAME}
@@ -28,7 +28,7 @@ pipeline {
                         
                         # Execute the script from the current directory
                         python ssh_check.py
-                    '''
+                    """
                     echo 'SSH is available, proceeding with the pipeline.'
                 }
             }
