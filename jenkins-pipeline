@@ -22,9 +22,9 @@ pipeline {
                         # Source the environment script from the current working directory, passing the project name.
                         # Using double quotes to allow Groovy variable interpolation.
                         ./env.sh "${PROJECT_NAME}"
-                        echo "${PROJECT_ROOT}"
+                        echo "PROJECT_ROOT:${PROJECT_ROOT}"
                         # Now change to the project directory defined by env.sh
-                        cd "\${PROJECT_ROOT}"
+                        cd "${PROJECT_ROOT}"
                         
                         # Execute the script from the current directory
                         python ssh_check.py
