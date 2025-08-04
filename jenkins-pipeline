@@ -11,7 +11,7 @@ pipeline {
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
-        stringParam(name: 'PROJECT_NAME', defaultValue: 'XXX', description: 'The project name to use for the build, e.g., CA42, CA42-A, etc.')
+        string(name: 'PROJECT_NAME', defaultValue: 'XXX', description: 'The project name to use for the build, e.g., CA42, CA42-A, etc.')
     }    
     stages {
         stage('Check for SSH Availability') {
