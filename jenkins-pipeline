@@ -11,6 +11,7 @@ pipeline {
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
+        stringParam(name: 'PROJECT_NAME', defaultValue: 'XXX', description: 'The project name to use for the build, e.g., CA42, CA42-A, etc.')
     }    
     stages {
         stage('Check for SSH Availability') {
@@ -18,14 +19,13 @@ pipeline {
                 script {
                     echo 'Checking SSH availability...'
                     sh '''
-                        # CRITICAL: Change directory before sourcing env.sh
-                        # This ensures the shell is in the correct path and variables are set properly.
-                        cd /home/jenkins/ca42-automation
-                        # Use the dot (.) command to source the script.
-                        . ./env.sh CA42
-                        # Now use the variable defined in env.sh. Use '$PROJECT_ROOT' to let the shell
-                        # perform the variable substitution after env.sh has run.
-                        python $PROJECT_ROOT/ssh_check.py
+                        . ./env.sh ${PROJECT_NAME}
+                        
+                        # Now change to the project directory defined by env.sh
+                        cd ${PROJECT_ROOT}
+                        
+                        # Execute the script from the current directory
+                        python ssh_check.py
                     '''
                     echo 'SSH is available, proceeding with the pipeline.'
                 }
