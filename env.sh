@@ -1,16 +1,9 @@
 #!/bin/sh
 
-echo "$@"
+echo $@
 echo $1
 echo $2
 echo $#
-
-# Check if the first argument is empty
-if [ -z "$1" ]; then
-    echo "Error: Missing argument."
-    echo "Usage: $0 <CA42 | CA42-A | CA22-G2>"
-	exit 1
-fi
 
 export TC_TOKEN='eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
 
@@ -61,5 +54,3 @@ echo "RTSP_USERNAME=$RTSP_USERNAME"
 echo "RTSP_PASSWORD=$RTSP_PASSWORD"
 echo "TC_TOKEN=$TC_TOKEN"
 echo "PROJECT_ROOT=$PROJECT_ROOT"
-
-exit 0
