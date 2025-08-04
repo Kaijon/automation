@@ -11,8 +11,21 @@ pipeline {
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
+        booleanParam(name: 'CANCEL_JOB', defaultValue: false, description: 'Set to true to immediately terminate the pipeline')
     }    
     stages {
+        stage('Check for Early Termination if ssh is unavailable') {
+            when {
+                expression {
+                    return params.CANCEL_JOB
+                }
+            }
+            steps {
+                script {
+                    error('Pipeline was intentionally terminated due to SSH not working.')
+                }
+            }
+        }
         stage('Initial Jenknis Evironment') {
             steps {
                 script {
