@@ -57,22 +57,29 @@ pipeline {
         //        }
         //    }
         //}
-        //stage('Monitor Device Ready for FOTA') {
-        //    steps {
-        //        script {
-        //            echo "Starting device LED status monitoring..."
-        //            // Securely inject SSH credentials as environment variables
-        //            //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
-        //                sh '''
-        //                    cd /home/jenkins/ca42-automation # Go to your project root
-        //                    . /home/jenkins/ca42-automation/env.sh # Source environment if needed
-        //                    python watch-dev-ca42a.py
-        //                '''
-        //            //}
-        //            echo "Device monitoring script finished."
-        //        }
-        //    }
-        //}        
+        stage('Monitor Device Ready for FOTA') {
+            when {
+                expression {
+                    // The stage is executed if the 'IS_DEVICE_ONLINE' parameter is true.
+                    // Access parameters using the 'params' object.
+                    return params.IS_DEVICE_ONLINE
+                }
+            }
+            steps {
+                script {
+                    echo "Starting device LED status monitoring..."
+                    // Securely inject SSH credentials as environment variables
+                    //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
+                        sh '''
+                            cd /home/jenkins/ca42-automation # Go to your project root
+                            . /home/jenkins/ca42-automation/env.sh # Source environment if needed
+                            python watch-dev-ca42a.py
+                        '''
+                    //}
+                    echo "Device monitoring script finished."
+                }
+            }
+        }        
         //stage('FOTA progress') {
         //    steps {
         //        script {
