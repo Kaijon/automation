@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Check if the first argument is empty
-if [ -z "$2" ]; then
+if [ -z "$1" ]; then
     echo "Error: Missing argument."
     echo "Usage: . $1 <CA42 | CA42-A | CA22-G2>"
-    exit 1
+	exit 1
 fi
 
 export TC_TOKEN='eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
@@ -21,7 +21,7 @@ case "$ARG" in
 		export PASSWORD='getac123'
 		export RTSP_USERNAME='admin'
 		export RTSP_PASSWORD='4200'
-		export PROJECT_ROOT='home/jenkins/ca42-aumation'
+		export PROJECT_ROOT='home/jenkins/ca42-automation'
         ;;
     "CA42-A")
         echo "Running stage for CA42-A..."
@@ -30,7 +30,7 @@ case "$ARG" in
 		export PASSWORD='getac123'
 		export RTSP_USERNAME='admin'
 		export RTSP_PASSWORD='4200'
-		export PROJECT_ROOT='home/jenkins/ca42a-aumation'
+		export PROJECT_ROOT='home/jenkins/ca42a-automation'
         ;;
 	"CA22-G2")
 	    echo "Running stage for CA22-G2..."
@@ -39,10 +39,11 @@ case "$ARG" in
 		export PASSWORD='getac123'
 		export RTSP_USERNAME='admin'
 		export RTSP_PASSWORD='2100'
-		export PROJECT_ROOT='home/jenkins/ca22-g2-aumation'
+		export PROJECT_ROOT='home/jenkins/ca22-g2-automation'
+	    ;;
     *)
         echo "Error: Invalid argument."
-        echo "Please specify a correct argument: CA42 or CA42-A"
+        echo "Please specify a correct argument: CA42 or CA42-A or CA22-G2"
         exit 1
         ;;
 esac
@@ -54,5 +55,6 @@ echo "PASSWORD=$PASSWORD"
 echo "RTSP_USERNAME=$RTSP_USERNAME"
 echo "RTSP_PASSWORD=$RTSP_PASSWORD"
 echo "TC_TOKEN=$TC_TOKEN"
+echo "PROJECT_ROOT=$PROJECT_ROOT"
 
 exit 0
