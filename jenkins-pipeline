@@ -20,9 +20,9 @@ pipeline {
                     sh '''
                         # CRITICAL: Change directory before sourcing env.sh
                         # This ensures the shell is in the correct path and variables are set properly.
-                        #cd /home/jenkins/ca42-automation
+                        cd /home/jenkins/ca42-automation
+                        # Use the dot (.) command to source the script.
                         . ./env.sh CA42
-                        echo "PROJECT_ROOT:${PROJECT_ROOT}"
                         # Now use the variable defined in env.sh. Use '$PROJECT_ROOT' to let the shell
                         # perform the variable substitution after env.sh has run.
                         python $PROJECT_ROOT/ssh_check.py
