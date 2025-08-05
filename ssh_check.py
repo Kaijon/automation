@@ -71,6 +71,10 @@ def wait_for_device_ready():
             print("SSH connection closed.")
 
 if __name__ == "__main__":
+    ip = os.environ.get('DEVICE_IP')
+    user = os.environ.get('USERNAME')
+    pwd = os.environ.get('PASSWORD')
+    print(f"{ip}, {user}, {pwd}", file=sys.stderr)
     if wait_for_device_ready():
         sys.exit(0)
     else:
