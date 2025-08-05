@@ -26,23 +26,10 @@ pipeline {
             steps {
                 script {
                     echo 'Checking SSH availability...'
-                        def projectPath = sh(script: "./env.sh ${params.PROJECT_NAME} && echo \"\${PROJECT_ROOT}\"", returnStdout: true).trim()
-                        echo "Resolved PROJECT_ROOT: ${projectPath}"
                         sh '''
                             cd "${projectPath}"
                             python ssh_check.py
                         '''
-                    sh '''
-                        # Source the environment script from the current working directory, passing the project name.
-                        # Using double quotes to allow Groovy variable interpolation.
-                        ./env.sh "${PROJECT_NAME}"
-                        echo "PROJECT_ROOT:${PROJECT_ROOT}"
-                        # Now change to the project directory defined by env.sh
-                        cd "${PROJECT_ROOT}"
-                        
-                        # Execute the script from the current directory
-                        python ssh_check.py
-                    '''
                     echo 'SSH is available, proceeding with the pipeline.'
                 }
             }
