@@ -22,6 +22,7 @@ pipeline {
     //    PROJECT_ROOT = '/home/jenkins/ca42-automation'
     //}
     stages {
+/*
         stage('Load env.sh') {
             steps {
                 script {
@@ -71,6 +72,7 @@ pipeline {
                 }
             }
         }
+*/
         stage('Initial Jenknis Evironment') {
             steps {
                 script {
@@ -115,6 +117,7 @@ pipeline {
         //        }
         //    }
         //}
+/*
         stage('Monitor Device Ready for FOTA') {
             when {
                 expression {
@@ -132,7 +135,8 @@ pipeline {
                     echo "Device monitoring script finished."
                 }
             }
-        }        
+        }
+*/
         //stage('FOTA progress') {
         //    steps {
         //        script {
