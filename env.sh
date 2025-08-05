@@ -1,16 +1,6 @@
 #!/bin/sh
+ARG="CA42"
 
-echo $@
-echo $1
-echo $2
-echo $#
-
-export TC_TOKEN='eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
-
-# Get the argument
-ARG="$1"
-
-# Use case statement for better scalability
 case "$ARG" in
     "CA42")
         echo "Running stage for CA42..."
@@ -45,6 +35,7 @@ case "$ARG" in
         exit 1
         ;;
 esac
+export TC_TOKEN='eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
 
 # Verify they are set:
 echo "DEVICE_IP=$DEVICE_IP"
