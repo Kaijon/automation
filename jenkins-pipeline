@@ -27,7 +27,7 @@ pipeline {
                 script {
                     sh '''
                         ./env.sh
-                        echo $env.PASSWORD
+                        echo ${env.PASSWORD}
                     '''
                 }
             }
