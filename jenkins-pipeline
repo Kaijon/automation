@@ -15,7 +15,7 @@ pipeline {
     //environment {
     //    DEVICE_IP = '192.168.5.51'
     //    USERNAME = 'root'
-        PASSWORD = 'getac123'
+    //    PASSWORD = 'getac123'
     //    RTSP_USERNAME = 'admin'
     //    RTSP_PASSWORD = '4200'
     //    TC_TOKEN = 'eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
@@ -25,10 +25,19 @@ pipeline {
         stage('Load env.sh') {
             steps {
                 script {
-                    sh '''
-                        ./env.sh
-                        echo "PASSWORD : ${env.PASSWORD}"
-                    '''
+                    def props = readProperties file: 'config.properties'
+
+                    // Use the 'withEnv' step to set the variables for a specific block
+                    withEnv([
+                        "DEVICE_IP=${props.DEVICE_IP}",
+                        "PROJECT_ROOT=${props.PROJECT_ROOT}"
+                    ]) {
+                        // Now your environment is set for the steps in this block
+                        sh 'echo "Device IP from file: $DEVICE_IP"'
+                        sh 'echo "Project root from file: $PROJECT_ROOT"'
+                        // Run your Python script here
+                        // sh 'python my_automation_script.py'
+                    }
                 }
             }
         }
