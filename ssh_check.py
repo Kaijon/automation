@@ -5,9 +5,9 @@ import os
 import socket
 
 # --- Configuration ---
-DEVICE_HOSTNAME = os.environ.get('')
-DEVICE_USERNAME = os.environ.get('DEV_USER')
-DEVICE_PASSWORD = os.environ.get('DEV_PASS')
+DEVICE_HOSTNAME = os.environ.get('DEVICE_IP')
+DEVICE_USERNAME = os.environ.get('USERNAME')
+DEVICE_PASSWORD = os.environ.get('PASSWORD')
 
 MAX_TOTAL_WAIT_TIME_SECONDS = 300 # Max 5 minutes total wait for device to become ready
 SSH_RECONNECT_TIMEOUT_SECONDS = 60 # Max 1 minute for SSH connection attempts
