@@ -33,10 +33,10 @@ pipeline {
                         "PROJECT_ROOT=${props.PROJECT_ROOT}"
                     ]) {
                         // Now your environment is set for the steps in this block
-                        sh 'echo "Device IP from file: $DEVICE_IP"'
-                        sh 'echo "Project root from file: $PROJECT_ROOT"'
+                        // sh 'echo "Device IP from file: $DEVICE_IP"'
+                        // sh 'echo "Project root from file: $PROJECT_ROOT"'
                         // Run your Python script here
-                        // sh 'python my_automation_script.py'
+                        sh 'python ssh_check.py'
                     }
                 }
             }
