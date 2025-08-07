@@ -1,0 +1,100 @@
+# --- Configuration Variables ---
+# Jenkins connection details
+JENKINS_URL="http://192.168.61.66:8080"
+JENKINS_JOB_NAME="dev-ca42"
+JENKINS_JOB_TOKEN="TC_TOKEN"
+JENKINS_USERNAME="lab"
+JENKINS_API_TOKEN="11c19572ecc9ab1dcdc22bc76958cb9946"
+
+# TeamCity parameters
+TEAMCITY_BUILD_ID="%teamcity.build.id%"
+TEAMCITY_BUILD_TYPE_ID="%system.teamcity.buildType.id%"
+TEAMCITY_BUILD_NUMBER="%build.number%"
+TEAMCITY_SERVER_URL="%teamcity.serverUrl%"
+TEAMCITY_API_USER="%system.teamcity.api.user%"
+TEAMCITY_API_TOKEN="%system.teamcity.api.token%"
+# --- End Configuration Variables ---
+
+#echo "TC_URL: $TEAMCITY_SERVER_URL"
+#echo "TC_USER: $TEAMCITY_API_USER"
+#echo "TC_TOKEN: $TEAMCITY_API_TOKEN"
+#echo "TC_BUILD_ID: $TEAMCITY_BUILD_ID"
+#echo "TC_BUILD_TYPE_ID: $TEAMCITY_BUILD_TYPE_ID"
+#echo "TC_BUILD_NUMBER: $TEAMCITY_BUILD_NUMBER"
+
+# --- Fetch the Jenkins Crumb ---
+echo "Fetching Jenkins crumb from Jenkins URL: ${JENKINS_URL}..."
+# Use curl to get the crumb.
+# -s: silent mode (no progress meter or error messages unless serious)
+# -u: user:password for basic authentication (using API token as password)
+# /crumbIssuer/api/json: Jenkins endpoint for crumb
+CRUMB_RESPONSE=$(curl -s -u "${JENKINS_USERNAME}:${JENKINS_API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json")
+CURL_EXIT_CODE=$?
+if [ ${CURL_EXIT_CODE} -ne 0 ]; then
+    echo "Error: curl failed to fetch Jenkins crumb with exit code ${CURL_EXIT_CODE}."
+    echo "Curl Response (if any): ${CRUMB_RESPONSE}"
+    exit 1
+fi
+# Check if the response contains "Invalid JSON" or similar non-JSON errors
+# We expect to find "crumb" and "crumbRequestField" in the response.
+if ! echo "${CRUMB_RESPONSE}" | grep -q 'crumb' || ! echo "${CRUMB_RESPONSE}" | grep -q 'crumbRequestField'; then
+    echo "Error: Jenkins did not return a valid JSON crumb response. Response:"
+    echo "${CRUMB_RESPONSE}"
+    exit 1
+fi
+# Parse the crumb and crumb header name using grep and sed/awk (without jq)
+# This method relies on the specific JSON structure returned by Jenkins's crumbIssuer.
+CRUMB_VALUE=$(echo "${CRUMB_RESPONSE}" | grep -o '"crumb":"[^"]*"' | sed 's/"crumb":"//;s/"//')
+CRUMB_HEADER_NAME=$(echo "${CRUMB_RESPONSE}" | grep -o '"crumbRequestField":"[^"]*"' | sed 's/"crumbRequestField":"//;s/"//')
+if [ -z "${CRUMB_VALUE}" ] || [ -z "${CRUMB_HEADER_NAME}" ]; then
+    echo "Error: Could not parse crumb or crumbRequestField from Jenkins response. Check JSON structure."
+    echo "Crumb Response: ${CRUMB_RESPONSE}"
+    exit 1
+fi
+echo "Crumb fetched successfully: ${CRUMB_HEADER_NAME}: ${CRUMB_VALUE}"
+
+# --- Trigger the Jenkins build with parameters and the crumb ---
+echo "Attempting to trigger Jenkins build..."
+# Construct the data payload for the POST request
+POST_DATA="&TEAMCITY_BUILD_TYPE_ID=${TEAMCITY_BUILD_TYPE_ID}\
+&TEAMCITY_BUILD_NUMBER=${TEAMCITY_BUILD_NUMBER}\
+&TEAMCITY_SERVER_URL=${TEAMCITY_SERVER_URL}\
+&TEAMCITY_API_USER=${TEAMCITY_API_USER}\
+&TEAMCITY_API_TOKEN=${TEAMCITY_API_TOKEN}"
+
+# Construct the full URL for the build trigger
+TRIGGER_URL="${JENKINS_URL}/job/${JENKINS_JOB_NAME}/buildWithParameters?token=${JENKINS_JOB_TOKEN}"
+echo "TriggerUrl: ${TRIGGER_URL}"
+# Use curl to send the POST request
+# -X POST: Specifies the HTTP POST method
+# -H "${CRUMB_HEADER_NAME}: ${CRUMB_VALUE}": Adds the Jenkins crumb as a request header
+# -u "${JENKINS_USERNAME}:${JENKINS_API_TOKEN}": Authenticates the request (user for permissions)
+# --data "${POST_DATA}": Sends the parameters in the request body
+# Capture stdout and stderr
+TRIGGER_RESPONSE=$(curl -s -X POST \
+    -H "${CRUMB_HEADER_NAME}: ${CRUMB_VALUE}" \
+    -u "${JENKINS_USERNAME}:${JENKINS_API_TOKEN}" \
+    --data "${POST_DATA}" \
+    "${TRIGGER_URL}")
+CURL_EXIT_CODE=$?
+if [ ${CURL_EXIT_CODE} -ne 0 ]; then
+    echo "Error: curl failed to trigger Jenkins build with exit code ${CURL_EXIT_CODE}."
+    echo "Curl Response (if any): ${TRIGGER_RESPONSE}"
+    exit 1
+fi
+# Jenkins typically returns a 201 Created or 200 OK with minimal body on success.
+# If it returns an HTML error page (like 403 Forbidden), check for that.
+if echo "${TRIGGER_RESPONSE}" | grep -q "HTTP ERROR 403 No valid crumb was included in the request"; then
+    echo "Error: Jenkins returned '403 Forbidden - No valid crumb'. This should not happen if the crumb was correctly fetched."
+    echo "Full Jenkins response (HTML):"
+    echo "${TRIGGER_RESPONSE}"
+    exit 1
+elif echo "${TRIGGER_RESPONSE}" | grep -q "HTTP ERROR"; then
+    echo "Error: Jenkins returned an HTTP error."
+    echo "Full Jenkins response (HTML):"
+    echo "${TRIGGER_RESPONSE}"
+    exit 1
+fi
+echo "Jenkins build triggered successfully!"
+echo "Response from Jenkins: ${TRIGGER_RESPONSE}" # This will be empty for a successful buildWithParameters call typically
+exit 0
