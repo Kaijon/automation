@@ -5,11 +5,12 @@ import os
 import socket
 
 # --- Configuration ---
-DEVICE_HOSTNAME = '192.168.5.51'
-#DEVICE_USERNAME = os.environ.get('DEV_USER')
-#DEVICE_PASSWORD = os.environ.get('DEV_PASS')
-DEVICE_USERNAME = 'root'
-DEVICE_PASSWORD = 'getac123'
+DEVICE_HOSTNAME = os.environ.get('DEVICE_IP')
+DEVICE_USERNAME = os.environ.get('USERNAME')
+DEVICE_PASSWORD = os.environ.get('PASSWORD')
+#DEVICE_HOSTNAME = '192.168.5.51'
+#DEVICE_USERNAME = 'root'
+#DEVICE_PASSWORD = 'getac123'
 
 # SSH commands to check LED status
 LED_R_CHECK_COMMAND = 'cat /sys/class/gpio/gpio41/value'
@@ -105,7 +106,9 @@ def wait_for_device_ready():
             print("SSH connection closed.")
 
 if __name__ == "__main__":
+    print(f"User='{DEVICE_USERNAME}', PWD='{DEVICE_PASSWORD}'")
     if wait_for_device_ready():
         sys.exit(0)
     else:
         sys.exit(1)
+
