@@ -4,12 +4,11 @@ pipeline {
     //}
     agent any
     parameters {
-        string(name: 'TEAMCITY_BUILD_ID', defaultValue: '27230', description: 'Build ID')
-        string(name: 'TEAMCITY_BUILD_NUMBER', defaultValue: '253', description: 'Build Number')
-        string(name: 'TEAMCITY_BUILD_TYPE_ID', defaultValue: 'Test_FirmwareBuilder', description: 'Build TYPE_ID')
         string(name: 'TEAMCITY_SERVER_URL', defaultValue: 'https://iotsw-athena.veretos.com:8282', description: 'TeamCity Server URL for callback')
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
+        string(name: 'TEAMCITY_BUILD_NUMBER', defaultValue: '0.0.0.469', description: 'Build Number')
+        string(name: 'TEAMCITY_BUILD_TYPE_ID', defaultValue: 'IPCamera_QualcommCanf42_RdDevelopTrunkBranchDevelop_2', description: 'Build TYPE_ID')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
     }
     //environment {
@@ -222,35 +221,66 @@ pipeline {
             steps {
                 script {
                     echo "Echo Teamcity"
-                    def teamcityServerUrl = env.TEAMCITY_SERVER_URL
-                    def teamcityBuildId = env.TEAMCITY_BUILD_ID
-                    def paramNameBuildLink = "jenkins.build.link"
-                    def paramNameArtifactsLink = "jenkins.artifacts.link"
-                    if (!teamcityBuildId) {
-                        error "TEAMCITY_BUILD_ID environment variable not found. Cannot report back to TeamCity."
-                    }
-                    if (!teamcityServerUrl) {
-                        teamcityServerUrl = "https://iotsw-athena.veretos.com:8282"
-                        echo "Warning: TEAMCITY_SERVER_URL not found in env, using hardcoded fallback: ${teamcityServerUrl}"
-                    }
+                    def teamcityServerUrl = env.TEAMCITY_SERVER_URL ?: params.TEAMCITY_SERVER_URL
+                    def targetBuildTypeId = env.TEAMCITY_BUILD_TYPE_ID ?: params.TEAMCITY_BUILD_TYPE_ID
+                    def targetBuildNumber = env.TEAMCITY_BUILD_NUMBER ?: params.TEAMCITY_BUILD_NUMBER
+                    def targetBuildId = ""
+                    
+                    echo "Using TeamCity Server URL: ${teamcityServerUrl}"
+                    echo "Using Target Build Type ID: ${targetBuildTypeId}"
+                    echo "Using Target Build Number: ${targetBuildNumber}"
+                    
                     withCredentials([usernamePassword(credentialsId: 'TEAMCITY_CREDENTIALS', usernameVariable: 'TEAMCITY_API_USER', passwordVariable: 'TEAMCITY_API_TOKEN')]) {
-                        echo "Reporting Jenkins Build URL to TeamCity for build ID: ${teamcityBuildId}"
                         def authHeader = "Basic " + "${TEAMCITY_API_USER}:${TEAMCITY_API_TOKEN}".bytes.encodeBase64().toString()
                         try {
-                            def teamcityCommentApiUrl = "${teamcityServerUrl}/app/rest/builds/id:${teamcityBuildId}/comment"
-                            //def commentText = "Jenkins Build: ${env.jenkinsBuildUrl} | Artifacts: ${env.jenkinsArtifactsUrl}"
-                            def commentText = "Jenkins Artifacts: ${env.jenkinsArtifactsUrl}"
-                            httpRequest customHeaders: [[name: 'Content-Type', value: 'text/plain'], [name: 'Authorization', value: authHeader]],
-                                        consoleLogResponseBody: true,
-                                        httpMode: 'PUT',
-                                        requestBody: commentText,
-                                        url: teamcityCommentApiUrl,
-                                        validResponseCodes: '200,204'
-                            echo "Successfully added comment to TeamCity build."
+                            // Step 1: Query TeamCity to get the internal build ID for the specific build number
+                            def buildLookupUrl = "${teamcityServerUrl}/app/rest/builds?locator=buildType:${targetBuildTypeId},number:${targetBuildNumber}"
+                            echo "Querying TeamCity for build ID: ${buildLookupUrl}"
+                            
+                            def response = httpRequest customHeaders: [
+                                [name: 'Authorization', value: authHeader],
+                                [name: 'Accept', value: 'application/json']
+                            ],
+                            consoleLogResponseBody: true,
+                            url: buildLookupUrl,
+                            validResponseCodes: '200'
+                            
+                            def jsonResponse = readJSON text: response.content
+                            
+                            // Check if any builds were found based on the JSON response
+                            if (jsonResponse.count > 0 && jsonResponse.build.size() > 0) {
+                                targetBuildId = jsonResponse.build[0].id
+                                echo "Found internal TeamCity Build ID: ${targetBuildId} for build number ${targetBuildNumber}"
+                            } else {
+                                // The error message is now correct as the TeamCity API confirmed the build doesn't exist
+                                error "Could not find TeamCity build for buildType: ${targetBuildTypeId}, number: ${targetBuildNumber}. TeamCity response indicates no build found."
+                            }
+                            
+                            if (!targetBuildId) {
+                                error "Failed to retrieve internal TeamCity Build ID."
+                            }
+                            
+                            // Step 2: Post the comment to the retrieved internal build ID
+                            def teamcityCommentApiUrl = "${teamcityServerUrl}/app/rest/builds/id:${targetBuildId}/comment"
+                            def jenkinsArtifactsUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/artifact/"
+                            //def commentText = "Jenkins Artifacts: ${jenkinsArtifactsUrl} (Comment from Jenkins pipeline for build ${targetBuildNumber})"
+                            def commentText = "Jenkins Report: ${jenkinsArtifactsUrl}/PytestReport.html"
+                            
+                            httpRequest customHeaders: [
+                                [name: 'Content-Type', value: 'text/plain'],
+                                [name: 'Authorization', value: authHeader]
+                            ],
+                            consoleLogResponseBody: true,
+                            httpMode: 'PUT',
+                            requestBody: commentText,
+                            url: teamcityCommentApiUrl,
+                            validResponseCodes: '200,204'
+                            
+                            echo "Successfully added comment to TeamCity build ${targetBuildNumber} (${targetBuildId})."
                             echo ">>>>>>>>>> Signal Teamcity completed. >>>>>>>>>>"
-                        } catch (Exception e) {
-                            echo "Failed to report to TeamCity: ${e.message}"
-                        }
+                    } catch (Exception e) {
+                        echo "Failed to report to TeamCity: ${e.message}"
+                        currentBuild.result = 'UNSTABLE'
                     }
                 }
             }
