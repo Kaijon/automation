@@ -26,6 +26,28 @@ pipeline {
                 }
             }
         }
+        stage('Monitor Device Ready') {
+            when {
+                expression {
+                    return params.IS_DEVICE_ONLINE
+                }
+            }
+            steps {
+                script {
+                    echo "Starting device LED status monitoring..."
+                    def props = readProperties file: 'config-ca42.properties'
+                    withEnv([
+                        "DEVICE_IP=${props.DEVICE_IP}",
+                        "USERNAME=${props.USERNAME}",
+                        "PASSWORD=${props.PASSWORD}",
+                        "PROJECT_ROOT=${props.PROJECT_ROOT}"
+                    ]) {
+                        sh 'python ${PROJECT_ROOT}/watch-dev-ca42.py'
+                    }                    
+                    echo "Device monitoring script finished."
+                }
+            }
+        }
 /*
         stage('Load env.sh') {
             steps {
