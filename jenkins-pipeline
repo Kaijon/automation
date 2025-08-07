@@ -11,16 +11,21 @@ pipeline {
         string(name: 'TEAMCITY_BUILD_TYPE_ID', defaultValue: 'IPCamera_QualcommCanf42_RdDevelopTrunkBranchDevelop_2', description: 'Build TYPE_ID')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
     }
-    //environment {
-    //    DEVICE_IP = '192.168.5.51'
-    //    USERNAME = 'root'
-    //    PASSWORD = 'getac123'
-    //    RTSP_USERNAME = 'admin'
-    //    RTSP_PASSWORD = '4200'
-    //    TC_TOKEN = 'eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
-    //    PROJECT_ROOT = '/home/jenkins/ca42-automation'
-    //}
     stages {
+        stage('Check for SSH Availability') {
+            steps {
+                script {
+                    def props = readProperties file: 'config.properties'
+                    withEnv([
+                        "DEVICE_IP=${props.CA42_DEVICE_IP}",
+                        "USERNAME=${props.CA42_USERNAME}",
+                        "PASSWORD=${props.CA42_PASSWORD}",
+                    ]) {
+                        sh 'python ssh_check.py'
+                    }
+                }
+            }
+        }
 /*
         stage('Load env.sh') {
             steps {
