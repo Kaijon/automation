@@ -8,10 +8,183 @@ pipeline {
         string(name: 'TEAMCITY_API_USER', defaultValue: 'Jenkinsagent', description: 'TeamCity API Username for callback')
         string(name: 'TEAMCITY_API_TOKEN', defaultValue: 'Jenkinsagent', description: 'TeamCity API Token for callback')
         string(name: 'TEAMCITY_BUILD_NUMBER', defaultValue: '0.0.0.469', description: 'Build Number')
+        string(name: 'TEAMCITY_BUILD_ID', defaultValue: '22275', description: 'Build ID')
         string(name: 'TEAMCITY_BUILD_TYPE_ID', defaultValue: 'IPCamera_QualcommCanf42_RdDevelopTrunkBranchDevelop_2', description: 'Build TYPE_ID')
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
     }
+    //environment {
+    //    DEVICE_IP = '192.168.5.51'
+    //    USERNAME = 'root'
+    //    PASSWORD = 'getac123'
+    //    RTSP_USERNAME = 'admin'
+    //    RTSP_PASSWORD = '4200'
+    //    TC_TOKEN = 'eyJ0eXAiOiAiVENWMiJ9.dW0tb3E0bnRrZjNpWlhZZkIwVW5Hb2RlYy1V.NmFmNTljN2QtMGRmZC00YzA4LTkzOWMtOWJmMjZkZGE2YmYy'
+    //    PROJECT_ROOT = '/home/jenkins/ca42-automation'
+    //}
     stages {
+/*
+        stage('Load env.sh') {
+            steps {
+                script {
+                    def props = readProperties file: 'config.properties'
+
+                    // Use the 'withEnv' step to set the variables for a specific block
+                    withEnv([
+                        "DEVICE_IP=${props.DEVICE_IP}",
+                        "PROJECT_ROOT=${props.PROJECT_ROOT}"
+                    ]) {
+                        // Now your environment is set for the steps in this block
+                        // sh 'echo "Device IP from file: $DEVICE_IP"'
+                        // sh 'echo "Project root from file: $PROJECT_ROOT"'
+                        // Run your Python script here
+                        sh 'python ssh_check.py'
+                    }
+                }
+            }
+        }
+        stage('Check for SSH Availability') {
+            steps {
+                script {
+                    echo 'Checking SSH availability...'
+                        sh '''
+                            cd "${projectPath}"
+                            python ssh_check.py
+                        '''
+                    echo 'SSH is available, proceeding with the pipeline.'
+                }
+            }
+        }
+        
+        stage('Monitor Device Ready') {
+            when {
+                expression {
+                    return params.IS_DEVICE_ONLINE
+                }
+            }
+            steps {
+                script {
+                    echo "Starting device LED status monitoring..."
+                    sh '''
+                        ./env.sh CA42
+                        python ${PROJECT_ROOT}/watch-dev-ca42a.py
+                    '''
+                    echo "Device monitoring script finished."
+                }
+            }
+        }
+*/
+        stage('Initial Jenknis Evironment') {
+            steps {
+                script {
+                    echo "TEAMCITY_BUILD_ID: ${TEAMCITY_BUILD_ID}"
+                    echo "TEAMCITY_BUILD_TYPE_ID: ${TEAMCITY_BUILD_TYPE_ID}"
+                    echo "TEAMCITY_BUILD_NUMBER: ${TEAMCITY_BUILD_NUMBER}"
+                    echo "TEAMCITY_SERVER_URL: ${TEAMCITY_SERVER_URL}"
+                    echo "TEAMCITY_API_USER: ${TEAMCITY_API_USER}"
+                    // echo "TEAMCITY_API_TOKEN: ${env.TEAMCITY_API_TOKEN}" // No longer needed if using username/password
+                    def rawBuildUrl = env.BUILD_URL
+                    def httpBuildUrl = rawBuildUrl.replace('https://', 'http://')  // Ensure artifact URL also uses http
+                    env.jenkinsBuildUrl = httpBuildUrl
+                    env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/PytestReport.html"
+                    env.n8nWebhookUrl = "${env.jenkinsBuildUrl}webhook/jenkins-items"
+                    echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
+                    echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
+                    echo "n8nWebhookUrl URL: ${env.n8nWebhookUrl}"
+                }
+            }
+        }
+        //stage('Install Test Dependencies with Pipenv') {
+        //    steps {
+        //        script {
+        //            echo "Installing Python test dependencies with Pipenv..."
+        //            // Change directory to your project root where Pipfile/Pipfile.lock are located
+        //            // Use --dev to install development dependencies (including pytest itself)
+        //            sh 'cd /home/jenkins/ca42-automation && pipenv install --dev'
+        //            echo "Python test dependencies installed."
+        //        }
+        //    }
+        //}        
+        //stage('Download Firmware Artifact') {
+        //    steps {
+        //        script {
+        //            echo "Navigating to project directory and downloading firmware..."
+        //            sh '''
+        //                cd /home/jenkins/ca42-automation
+        //                . /home/jenkins/ca42-automation/env.sh
+        //                python cmdline/all_in_one.py download_artifact
+        //            '''
+        //            echo "Firmware download initiated."
+        //        }
+        //    }
+        //}
+/*
+        stage('Monitor Device Ready for FOTA') {
+            when {
+                expression {
+                    return params.IS_DEVICE_ONLINE
+                }
+            }
+            steps {
+                script {
+                    echo "Starting device LED status monitoring..."
+                    sh '''
+                            cd /home/jenkins/ca42-automation # Go to your project root
+                            . /home/jenkins/ca42-automation/env_ca42.sh
+                            python watch-dev-ca42.py
+                       '''
+                    echo "Device monitoring script finished."
+                }
+            }
+        }
+*/
+        //stage('FOTA progress') {
+        //    steps {
+        //        script {
+        //            echo "Navigating to project directory and downloading firmware..."
+        //            // Navigate to the base directory of your project
+        //            // and then execute the commands in a single shell session.
+        //            sh '''
+        //                cd /home/jenkins/ca42-automation
+        //                python fota.py
+        //            '''
+        //            echo "Firmware fota done."
+        //        }
+        //    }
+        //}        
+        //stage('Monitor Device Ready for TEST') {
+        //   steps {
+        //        script {
+        //            echo "Starting device LED status monitoring..."
+        //            // Securely inject SSH credentials as environment variables
+        //            //withCredentials([usernamePassword(credentialsId: 'my-device-ssh-credentials', usernameVariable: 'DEV_USER', passwordVariable: 'DEV_PASS')]) {
+        //                sh '''
+        //                    cd /home/jenkins/ca42-automation # Go to your project root
+        //                    . /home/jenkins/ca42-automation/env.sh # Source environment if needed
+        //                    python watch-dev-ca42a.py
+        //                '''
+        //            //}
+        //            echo "Device monitoring script finished."
+        //        }
+        //    }
+        ////}
+        stage('Run Pytest') {
+            steps {
+                script {
+                    echo "Running Pytest for a_begin_test.py..."
+                    // Change directory to the root of your project or the tests directory
+                    // and then run pytest.
+                    // Assuming 'a_begin_test.py' is inside 'test_cases/system_testing/a_begin_test.py'
+                    // relative to /home/jenkins/ca42-automation
+                    sh '''
+                        cd /home/jenkins/ca42-automation
+                        pipenv run pytest tests/demo/test_fn.py \
+                        --html=PytestReport.html --self-contained-html
+                        cp PytestReport.html ${WORKSPACE}/PytestReport.html
+                    '''
+                    echo "Pytest execution finished."
+                }
+            }
+        }
         stage('Publish HTML Report') {
             steps {
                 archiveArtifacts artifacts: 'PytestReport.html', followSymlinks: false
@@ -28,6 +201,21 @@ pipeline {
                         reportTitles: ''
                     ]
                 )
+                /*
+                script {
+                    try {
+                        echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"                    
+                        def reportFilePath = "${WORKSPACE}/PytestReport.html"
+                        sh """
+                            curl -X POST -F "data=@/home/jenkins/ca42-automation/PytestReport.html" http://192.168.61.69:5678/webhook/jenkins-items
+                        """
+                        echo ">>>>>>>>>> Request a Webhook for n8n completed. >>>>>>>>>>"
+                    } catch (Exception e) {
+                        echo "Warning: Request a n8n Webhook failed: ${e.message}"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+                */
             }
         }
         stage('Signal Teamcity') {
@@ -91,13 +279,55 @@ pipeline {
                             
                             echo "Successfully added comment to TeamCity build ${targetBuildNumber} (${targetBuildId})."
                             echo ">>>>>>>>>> Signal Teamcity completed. >>>>>>>>>>"
-                            
-                        } catch (Exception e) {
-                            echo "Failed to report to TeamCity: ${e.message}"
-                            currentBuild.result = 'UNSTABLE'
-                        }
+                    } catch (Exception e) {
+                        echo "Failed to report to TeamCity: ${e.message}"
+                        currentBuild.result = 'UNSTABLE'
                     }
                 }
+            }
+        }
+    }
+    }
+    post {
+        always {
+            script {
+                echo "Jenkins POST proccess"
+                /*
+                def teamcityServerUrl = "https://iotsw-athena.veretos.com:8282/"
+                def tcBuildConfId = "Test_ReportCollector"
+                // Use Jenkins credentials for TeamCity, or define them in Jenkins Credentials Manager
+                // For production, use credentials() helper
+                def teamcityUser = "Jenkinsagent" // TeamCity user for triggering
+                def teamcityPassword = "Jenkinsagent" // API Token for the TeamCity user
+
+                // Pass Jenkins build details to TeamCity for artifact download
+                //def jenkinsBuildUrl = env.BUILD_URL // This will be like http://localhost:8080/job/dev-ca42a/5/
+                //def jenkinsJobName = env.JOB_NAME   // This will be 'dev-ca42a'
+                //def jenkinsBuildNumber = env.BUILD_NUMBER // This will be the current Jenkins build number (e.g., '5')
+                def jenkinsBuildUrl = "http://10.195.1.13:8080/job/dev-ca42a/5/"
+                def jenkinsJobName = "dev-ca42a"
+                def jenkinsBuildNumber = "5"
+                echo "Triggering TeamCity build: ${tcBuildConfId} for Jenkins build ${jenkinsBuildNumber}..."
+                // Construct the XML payload for triggering a build with parameters
+                def postData = """
+                                <build branchName="master">
+                                <buildType id="${tcBuildConfId}"/>
+                                <properties>
+                                    <property name="env.JENKINS_BUILD_URL" value="${jenkinsBuildUrl}"/>
+                                    <property name="env.JENKINS_JOB_NAME" value="${jenkinsJobName}"/>
+                                    <property name="env.JENKINS_BUILD_NUMBER" value="${jenkinsBuildNumber}"/>
+                                </properties>
+                                </build>
+                               """
+                // Execute curl command to trigger TeamCity
+                sh """
+                    curl -X POST -H 'Content-Type:application/xml' \\
+                           -u '${teamcityUser}:${teamcityPassword}' \\
+                           '${teamcityServerUrl}/httpAuth/app/rest/buildQueue' \\
+                           --data '${postData}'
+                """
+                echo "TeamCity build trigger request sent."
+                */
             }
         }
     }
