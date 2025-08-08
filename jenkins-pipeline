@@ -48,6 +48,44 @@ pipeline {
                 }
             }
         }
+        stage('Initial Jenknis Evironment') {
+            steps {
+                script {
+                    echo "TEAMCITY_BUILD_ID: ${TEAMCITY_BUILD_ID}"
+                    echo "TEAMCITY_BUILD_TYPE_ID: ${TEAMCITY_BUILD_TYPE_ID}"
+                    echo "TEAMCITY_BUILD_NUMBER: ${TEAMCITY_BUILD_NUMBER}"
+                    echo "TEAMCITY_SERVER_URL: ${TEAMCITY_SERVER_URL}"
+                    echo "TEAMCITY_API_USER: ${TEAMCITY_API_USER}"
+                    // echo "TEAMCITY_API_TOKEN: ${env.TEAMCITY_API_TOKEN}" // No longer needed if using username/password
+                    def rawBuildUrl = env.BUILD_URL
+                    def httpBuildUrl = rawBuildUrl.replace('https://', 'http://') // Ensure artifact URL also uses http
+                    env.jenkinsBuildUrl = httpBuildUrl
+                    env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/PytestReport.html"
+                    env.n8nWebhookUrl = "${env.jenkinsBuildUrl}webhook/jenkins-items"
+                    echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
+                    echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
+                    echo "n8nWebhookUrl URL: ${env.n8nWebhookUrl}"
+                }
+            }
+        }
+        stage('Download Firmware Artifact') {
+            steps {
+                script {
+                    echo "Navigating to project directory and downloading firmware..."
+                    def props = readProperties file: 'config-ca42.properties'
+                    withEnv([
+                        "PROJECT_ROOT=${props.PROJECT_ROOT}"
+                    ]) {
+                        sh '''
+                            cd ${PROJECT_ROOT}
+                            . ./config/env_ca42.sh
+                            python cmdline/all_in_one.py download_artifact
+                        '''
+                    }
+                    echo "Firmware download initiated."
+                }
+            }
+        }
 /*
         stage('Load env.sh') {
             steps {
