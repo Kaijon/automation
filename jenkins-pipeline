@@ -51,7 +51,7 @@ pipeline {
         stage('Initial Jenknis Evironment') {
             steps {
                 script {
-                    echo "TEAMCITY_BUILD_ID: ${TEAMCITY_BUILD_ID}"
+                    // echo "TEAMCITY_BUILD_ID: ${TEAMCITY_BUILD_ID}"
                     echo "TEAMCITY_BUILD_TYPE_ID: ${TEAMCITY_BUILD_TYPE_ID}"
                     echo "TEAMCITY_BUILD_NUMBER: ${TEAMCITY_BUILD_NUMBER}"
                     echo "TEAMCITY_SERVER_URL: ${TEAMCITY_SERVER_URL}"
