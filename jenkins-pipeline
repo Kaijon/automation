@@ -86,6 +86,29 @@ pipeline {
                 }
             }
         }
+        stage('Run Pytest') {
+            steps {
+                script {
+                    echo "Running Pytest"
+                    def props = readProperties file: 'config/config-ca42.properties'
+                    withEnv([
+                        "DEVICE_IP=${props.DEVICE_IP}",
+                        "USERNAME=${props.USERNAME}",
+                        "PASSWORD=${props.PASSWORD}",
+                        "RTSP_USERNAME=${props.RTSP_USERNAME}",
+                        "RTSP_PASSWORD=${props.RTSP_PASSWORD}",
+                        "PROJECT_ROOT=${props.PROJECT_ROOT}"
+                    ]) {
+                            dir("${props.PROJECT_ROOT}") {
+                                sh '''
+                                    pipenv run pytest tests/cgi/kc.py --html=PytestReport.html --self-contained-html
+                                    cp PytestReport.html ${WORKSPACE}/PytestReport.html
+                                '''
+                            }                        
+                    }
+                }
+            }
+        }
 /*
         stage('Load env.sh') {
             steps {
