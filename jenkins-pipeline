@@ -12,6 +12,31 @@ pipeline {
         booleanParam(name: 'IS_DEVICE_ONLINE', defaultValue: true, description: 'Device is online')
     }
     stages {
+        stage('Environment') {
+            steps {
+                script {
+                    sh '''
+                    if [ ! -f config-ca42.properties ]; then
+                        cp -r /home/jenkins/ca42-automation/config ${WORKSPACE}
+                    fi
+                    '''
+                    //echo "TEAMCITY_BUILD_ID: ${TEAMCITY_BUILD_ID}"
+                    echo "TEAMCITY_BUILD_TYPE_ID: ${TEAMCITY_BUILD_TYPE_ID}"
+                    echo "TEAMCITY_BUILD_NUMBER: ${TEAMCITY_BUILD_NUMBER}"
+                    echo "TEAMCITY_SERVER_URL: ${TEAMCITY_SERVER_URL}"
+                    echo "TEAMCITY_API_USER: ${TEAMCITY_API_USER}"
+                    // echo "TEAMCITY_API_TOKEN: ${env.TEAMCITY_API_TOKEN}" // No longer needed if using username/password
+                    def rawBuildUrl = env.BUILD_URL
+                    def httpBuildUrl = rawBuildUrl.replace('https://', 'http://') // Ensure artifact URL also uses http
+                    env.jenkinsBuildUrl = httpBuildUrl
+                    env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/PytestReport.html"
+                    env.n8nWebhookUrl = "${env.jenkinsBuildUrl}webhook/jenkins-items"
+                    echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
+                    echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
+                    echo "n8nWebhookUrl URL: ${env.n8nWebhookUrl}"
+                }
+            }
+        }
         stage('Check for SSH Availability') {
             steps {
                 script {
@@ -45,26 +70,6 @@ pipeline {
                         sh 'python ${PROJECT_ROOT}/watch-dev-ca42.py'
                     }                    
                     echo "Device monitoring script finished."
-                }
-            }
-        }
-        stage('Initial Jenknis Evironment') {
-            steps {
-                script {
-                    // echo "TEAMCITY_BUILD_ID: ${TEAMCITY_BUILD_ID}"
-                    echo "TEAMCITY_BUILD_TYPE_ID: ${TEAMCITY_BUILD_TYPE_ID}"
-                    echo "TEAMCITY_BUILD_NUMBER: ${TEAMCITY_BUILD_NUMBER}"
-                    echo "TEAMCITY_SERVER_URL: ${TEAMCITY_SERVER_URL}"
-                    echo "TEAMCITY_API_USER: ${TEAMCITY_API_USER}"
-                    // echo "TEAMCITY_API_TOKEN: ${env.TEAMCITY_API_TOKEN}" // No longer needed if using username/password
-                    def rawBuildUrl = env.BUILD_URL
-                    def httpBuildUrl = rawBuildUrl.replace('https://', 'http://') // Ensure artifact URL also uses http
-                    env.jenkinsBuildUrl = httpBuildUrl
-                    env.jenkinsArtifactsUrl = "${httpBuildUrl}artifact/PytestReport.html"
-                    env.n8nWebhookUrl = "${env.jenkinsBuildUrl}webhook/jenkins-items"
-                    echo "Jenkins Build URL: ${env.jenkinsBuildUrl}"
-                    echo "Jenkins Artifacts URL: ${env.jenkinsArtifactsUrl}"
-                    echo "n8nWebhookUrl URL: ${env.n8nWebhookUrl}"
                 }
             }
         }
@@ -102,6 +107,7 @@ pipeline {
                             dir("${props.PROJECT_ROOT}") {
                                 sh '''
                                     git config --global --add safe.directory ${PROJECT_ROOT}
+
                                     pipenv run pytest tests/cgi/kc.py --html=PytestReport.html --self-contained-html
                                     cp PytestReport.html ${WORKSPACE}/PytestReport.html
                                 '''
@@ -115,7 +121,7 @@ pipeline {
             steps {
                 script {
                     def props = readProperties file: 'config.properties'
-
+                    pipenv sync --dev
                     // Use the 'withEnv' step to set the variables for a specific block
                     withEnv([
                         "DEVICE_IP=${props.DEVICE_IP}",
