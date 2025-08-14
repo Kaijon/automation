@@ -1,12 +1,15 @@
-FROM jenkins/inbound-agent:latest-jdk17
+# Dockerfile
 
-# Switch to root user to install necessary packages
+# Start from your required Jenkins agent base image.
+FROM jenkins/inbound-agent:latest-jdk17@sha256:591ba0391e1dc47af64432198be00a9e457c74d215970c4f1af592a210a6c37b
+
+# Switch to the root user to install software and compile
 USER root
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        vim \
+# 1. Install build dependencies needed to compile Python
+RUN apt-get update && apt-get install -y --no-install-recommends\
         build-essential \
+        vim \
         libssl-dev \
         zlib1g-dev \
         libbz2-dev \
@@ -31,63 +34,64 @@ RUN apt-get update && \
         libxrender1 \
         libfontconfig1 \
         libgtk2.0-0 \
-        # --- END NEW CRITICAL ADDITION ---        
-        && \        
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-ARG PYTHON_VERSION=3.10.13 # You can change this to the desired 3.10.x version
-RUN set -ex && \
-    wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -O /tmp/python.tgz && \
-    tar -xzf /tmp/python.tgz -C /tmp/ && \
-    cd /tmp/Python-${PYTHON_VERSION} && \
-    ./configure --enable-optimizations --with-ssl --prefix=/usr/local/python3.10 && \
-    make -j$(nproc) && \
+# 2. Download and compile Python 3.10
+# We use /tmp as a temporary build directory
+WORKDIR /tmp
+RUN curl -O https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tgz && \
+    tar -xzf Python-3.10.14.tgz
+
+WORKDIR /tmp/Python-3.10.14
+RUN ./configure --enable-optimizations && \
+    make -j $(nproc) && \
     make altinstall && \
-    cd /
-    #rm -rf /tmp/python.tgz /tmp/Python-${PYTHON_VERSION}
+    rm -rf /tmp/Python-3.10.14*
 
-RUN ln -s /usr/local/python3.10/bin/python3.10 /usr/local/bin/python3.10 && \
-    ln -s /usr/local/python3.10/bin/pip3.10 /usr/local/bin/pip3.10 && \
-    ln -s /usr/local/python3.10/bin/python3.10 /usr/local/bin/python && \
-    ln -s /usr/local/python3.10/bin/pip3.10 /usr/local/bin/pip && \
-    ln -s /usr/local/python3.10/bin/python3.10 /usr/local/bin/python3 && \
-    ln -s /usr/local/python3.10/bin/pip3.10 /usr/local/bin/pip3
-    
-RUN pip install --upgrade pip
-RUN pip install pipenv && \
-    pip install -U setuptools==57.5.0 
-#COPY requirements.txt .
-#RUN pip install --no-cache-dir -r requirements.txt
+# 3. Use the newly compiled Python to install pipenv
+RUN python3.10 -m pip install pipenv
+RUN python3.10 -m pip install --upgrade pip
+RUN python3.10 -m pip install pipenv && \
+    python3.10 -m pip install -U setuptools==57.5.0
 
-# Install iputils-ping for the 'ping' command (if you haven't already)
-RUN apt-get update && \
-    apt-get install -y iputils-ping && \
-    apt-get install -y xsltproc && \
-    rm -rf /var/lib/apt/lists/*
+RUN python3.10 -m pip install \
+    pytest \
+    pytest-html \
+    pytest-metadata==3.0.0 \
+    dicttoxml \
+    toml \
+    requests \
+    python-magic \
+    opencv-python \
+    easyocr \
+    bs4 \
+    paramiko \
+    scp \
+	schema \
+	xmltodict \
+	py
 
-# Install pytest globally using pip3
-RUN pip3 install --no-cache-dir pytest
+RUN usermod -aG sudo jenkins
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+ENV LANG=C.UTF-8
 
-RUN apt-get update && \
-    apt-get install -y unzip && \
-    apt-get install -y iputils-ping && \
-    apt-get install -y openssh-client && \
-    rm -rf /var/lib/apt/lists/*
+# 4. Set up the final application directory
+#WORKDIR /app
+#COPY Pipfile Pipfile.lock requirements.txt ./
 
-# Install pytest tool
-RUN pip3 install fire toml requests exchangelib pytest-html
+# 5. Generate requirements.txt and install packages using pip
+#RUN pipenv lock --dev
+#RUN pipenv requirements --dev > requirements.txt
+#RUN python3.10 -m pip install -r requirements.txt
 
-# Install Paramiko for Python SSH capabilities (if not already there)
-RUN pip3 install paramiko 
+# 6. Copy application code and set final permissions
+#COPY . .
+#RUN chown -R jenkins:jenkins /app
 
-# (Optional) Add any other tools your tests might need, e.g., git
-RUN apt-get update && \
-    apt-get install -y git && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/usr/local/python3.10/bin:${PATH}"
-# Switch back to the jenkins user
+# Switch back to the standard jenkins user
 USER jenkins
 
-# Set the working directory (optional, but good practice)
-WORKDIR /home/jenkins/agent
+ENV HOME="/home/jenkins"
+ENV PATH="${HOME}/.local/bin:${PATH}"
+RUN chown -R jenkins:jenkins ${HOME}/ca42-automation
+RUN git config --global --add safe.directory ${HOME}/ca42-automation

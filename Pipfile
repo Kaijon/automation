@@ -1,0 +1,38 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+toml = "*"
+xmltodict = "*"
+schema = "*"
+pre-commit = "*"
+pylint = "*"
+python-magic = "*"
+opencv-python = "*"
+numpy = "*"
+imutils = "*"
+easyocr = "*"
+beautifulsoup4 = "*"
+fire = "*"
+exchangelib = "*"
+paramiko = "*"
+scp = "*"
+pytest = "*"
+pytest-html = "*"
+pytest-metadata = "==3.0.0"
+exceptiongroup = "*"
+dicttoxml = "*"
+
+[dev-packages]
+ipython = "*"
+jupyterlab = "*"
+pexpect = "*"
+pytest = "*"
+pytest-html = "*"
+dicttoxml = "*"
+
+[requires]
+python_version = "3.10"

@@ -20,7 +20,7 @@ services:
     build: # <--- CHANGE THIS TO BUILD FROM DOCKERFILE.AGENT
       context: .
       dockerfile: Dockerfile.agent
-    container_name: jenkins-agent
+    container_name: jenkins-pytestor
     ports:
       - "8081:8081"
       - "22:22"    
@@ -28,10 +28,22 @@ services:
       - jenkins
     volumes:
       - ./ca42-automation:/home/jenkins/ca42-automation
-      - /var/run/docker.sock:/var/run/docker.sock # <--- THIS IS CRUCIAL FOR THE AGENT
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - JENKINS_URL=http://jenkins:8080
-      - JENKINS_NAME=CA42-Testor
-      - JENKINS_SECRET=036bd13c05a9addb8a6754076c58220d9d3af72534922defc9bdb3b327d129d4
+      - JENKINS_URL=http://jenkins:8080/
+      - JENKINS_NAME=jenkins-testor
+      - JENKINS_SECRET=${JENKINS_AGENT_SECRET}
       - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
     restart: always
+    # This line is crucial for the agent to communicate with the master
+    networks:
+      - jenkins-net
+
+# Top-level volumes definition (This was missing but is good practice)
+volumes:
+  jenkins_home:
+
+# Top-level networks definition (Corrected indentation)
+networks:
+  jenkins-net:
+    driver: bridge
