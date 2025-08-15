@@ -106,9 +106,7 @@ pipeline {
                     ]) {
                             dir("${props.PROJECT_ROOT}") {
                                 sh '''
-                                    git config --global --add safe.directory ${PROJECT_ROOT}
-
-                                    pipenv run pytest tests/cgi/kc.py --html=PytestReport.html --self-contained-html
+                                    pytest tests/cgi/kc.py
                                     cp PytestReport.html ${WORKSPACE}/PytestReport.html
                                 '''
                             }                        
