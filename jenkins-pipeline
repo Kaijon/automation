@@ -385,6 +385,31 @@ pipeline {
         always {
             script {
                 echo "Jenkins POST proccess"
+                if (fileExists('PytestReport.html')) {
+                    archiveArtifacts artifacts: 'PytestReport.html', followSymlinks: false
+                    echo "Publishing generated HTML report..."
+                    publishHTML(
+                        target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: false,
+                            keepAll: true,
+                            reportDir: '.', // This should be the directory relative to WORKSPACE where Report.html is
+                                        // Since you copied it to WORKSPACE root, '.' is correct.
+                            reportFiles: 'PytestReport.html', // The specific HTML file to publish
+                            reportName: 'Pytest Test Report', // The name that will appear in Jenkins UI
+                            reportTitles: ''
+                        ]
+                    )
+                    //echo ">>>>>>>>>> Request a Webhook for n8n >>>>>>>>>>"
+                    //def reportFilePath = "${WORKSPACE}/PytestReport.html"
+                    //sh """
+                    //    curl -X POST -F "data=@/home/jenkins/ca42-automation/PytestReport.html" http://192.168.61.69:5678/webhook/jenkins-items
+                    //"""
+                    //echo ">>>>>>>>>> Request a Webhook for n8n completed. >>>>>>>>>>"
+                } else {
+                    echo 'Report.html not found. Skipping publish step.'
+                }
+
                 /*
                 def teamcityServerUrl = "https://iotsw-athena.veretos.com:8282/"
                 def tcBuildConfId = "Test_ReportCollector"
