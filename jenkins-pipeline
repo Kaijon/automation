@@ -40,13 +40,14 @@ pipeline {
         stage('Check for SSH Availability') {
             steps {
                 script {
-                    def props = readProperties file: 'config.properties'
+                    def props = readProperties file: 'config/config-ca42.properties'
                     withEnv([
-                        "DEVICE_IP=${props.CA42_DEVICE_IP}",
-                        "USERNAME=${props.CA42_USERNAME}",
-                        "PASSWORD=${props.CA42_PASSWORD}",
+                        "DEVICE_IP=${props.DEVICE_IP}",
+                        "USERNAME=${props.USERNAME}",
+                        "PASSWORD=${props.PASSWORD}",
+                        "PROJECT_ROOT=${props.PROJECT_ROOT}"
                     ]) {
-                        sh 'python ssh_check.py'
+                        sh 'python3.10 ${PROJECT_ROOT}/lib/sh/ssh_check.py'
                     }
                 }
             }
@@ -60,14 +61,14 @@ pipeline {
             steps {
                 script {
                     echo "Starting device LED status monitoring..."
-                    def props = readProperties file: 'config-ca42.properties'
+                    def props = readProperties file: 'config/config-ca42.properties'
                     withEnv([
                         "DEVICE_IP=${props.DEVICE_IP}",
                         "USERNAME=${props.USERNAME}",
                         "PASSWORD=${props.PASSWORD}",
                         "PROJECT_ROOT=${props.PROJECT_ROOT}"
                     ]) {
-                        sh 'python ${PROJECT_ROOT}/watch-dev-ca42.py'
+                        sh 'python3.10 ${PROJECT_ROOT}/lib/sh/watch-dev-ca42.py'
                     }                    
                     echo "Device monitoring script finished."
                 }
@@ -77,14 +78,14 @@ pipeline {
             steps {
                 script {
                     echo "Navigating to project directory and downloading firmware..."
-                    def props = readProperties file: 'config-ca42.properties'
+                    def props = readProperties file: 'config/config-ca42.properties'
                     withEnv([
                         "PROJECT_ROOT=${props.PROJECT_ROOT}"
                     ]) {
                         sh '''
                             cd ${PROJECT_ROOT}
                             . ./config/env_ca42.sh
-                            python cmdline/all_in_one.py download_artifact
+                            python3.10 cmdline/all_in_one.py download_artifact
                         '''
                     }
                     echo "Firmware download initiated."
@@ -106,11 +107,11 @@ pipeline {
                     ]) {
                             dir("${props.PROJECT_ROOT}") {
                                 sh '''
-                                    pytest tests/cgi/kc.py
+                                    pytest tests/cgi
                                     cp PytestReport.html ${WORKSPACE}/PytestReport.html
                                 '''
                             }                        
-                    }
+                       }
                 }
             }
         }
